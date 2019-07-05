@@ -31,20 +31,19 @@ govendor fetch github.com/huimingz/wechatgo
 少部分功能由于缺乏测试环境，未进行测试。
 
 ```
-ok  	github.com/huimingz/wechatgo/client	1.102s	coverage: 40.5% of statements
-?   	github.com/huimingz/wechatgo/entapi	[no test files]
-ok  	github.com/huimingz/wechatgo/entapi/app	1.457s	coverage: 90.3% of statements
-ok  	github.com/huimingz/wechatgo/entapi/dept	2.034s	coverage: 100.0% of statements
-ok  	github.com/huimingz/wechatgo/entapi/extcontact	0.857s	coverage: 11.9% of statements
-?   	github.com/huimingz/wechatgo/entapi/invoice	[no test files]
-ok  	github.com/huimingz/wechatgo/entapi/media	1.716s	coverage: 42.0% of statements
-ok  	github.com/huimingz/wechatgo/entapi/msg	1.041s	coverage: 33.8% of statements
-ok  	github.com/huimingz/wechatgo/entapi/oa	1.459s	coverage: 100.0% of statements
-ok  	github.com/huimingz/wechatgo/entapi/oauth	0.688s	coverage: 93.9% of statements
-ok  	github.com/huimingz/wechatgo/entapi/tag	1.642s	coverage: 100.0% of statements
-ok  	github.com/huimingz/wechatgo/entapi/user	2.975s	coverage: 97.1% of statements
-ok  	github.com/huimingz/wechatgo/log	(cached)	coverage: 100.0% of statements
-ok  	github.com/huimingz/wechatgo/storage	0.008s	coverage: 95.7% of statements
+ok  	github.com/huimingz/wechatgo	(cached)	coverage: 69.2% of statements
+ok  	github.com/huimingz/wechatgo/ent	1.256s	coverage: 40.3% of statements
+ok  	github.com/huimingz/wechatgo/ent/app	1.338s	coverage: 90.3% of statements
+ok  	github.com/huimingz/wechatgo/ent/dept	2.616s	coverage: 100.0% of statements
+ok  	github.com/huimingz/wechatgo/ent/extcontact	1.092s	coverage: 11.9% of statements
+?   	github.com/huimingz/wechatgo/ent/invoice	[no test files]
+ok  	github.com/huimingz/wechatgo/ent/media	2.362s	coverage: 42.0% of statements
+ok  	github.com/huimingz/wechatgo/ent/msg	1.437s	coverage: 33.8% of statements
+ok  	github.com/huimingz/wechatgo/ent/oa	1.721s	coverage: 100.0% of statements
+ok  	github.com/huimingz/wechatgo/ent/oauth	0.973s	coverage: 93.9% of statements
+ok  	github.com/huimingz/wechatgo/ent/tag	1.829s	coverage: 100.0% of statements
+ok  	github.com/huimingz/wechatgo/ent/user	2.953s	coverage: 97.1% of statements
+ok  	github.com/huimingz/wechatgo/storage	(cached)	coverage: 95.7% of statements
 ```
 
 ## 可能存在的问题
