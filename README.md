@@ -9,7 +9,7 @@ go get -v github.com/huimingz/wechatgo
 
 使用`vendor`:
 ```
-govendor fetch github.com/huimingz/wechatgo
+govendor fetch -v -tree github.com/huimingz/wechatgo
 ```
 
 ## 文档
