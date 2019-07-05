@@ -16,3 +16,5 @@ type Conf struct {
 	UserId          string `yaml:"userid"`
 	OpenId          string `yaml:"openid"`
 }
+
+var TestConf = Conf{}
