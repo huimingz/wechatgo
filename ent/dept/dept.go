@@ -2,6 +2,7 @@
 package dept
 
 import (
+	"github.com/huimingz/wechatgo/ent/user"
 	"net/url"
 	"strconv"
 
@@ -92,7 +93,7 @@ func (w WechatDept) GetUserList(deptId int, fetchChild bool) ([]UserInfo, error)
 // 获取部门成员详情
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90201
-func (w WechatDept) GetUserDetailList(deptId int, fetchChild bool) ([]UserInfo, error) {
+func (w WechatDept) GetUserDetailList(deptId int, fetchChild bool) ([]user.UserInfo, error) {
 	values := url.Values{}
 	values.Add("department_id", strconv.Itoa(deptId))
 	if fetchChild {
@@ -102,7 +103,7 @@ func (w WechatDept) GetUserDetailList(deptId int, fetchChild bool) ([]UserInfo, 
 	}
 
 	out := struct {
-		UserList []UserInfo `json:"userlist"`
+		UserList []user.UserInfo `json:"userlist"`
 	}{}
 	err := w.Client.Get(urlGetUserDetailList, values, nil, &out)
 	return out.UserList, err
