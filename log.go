@@ -2,9 +2,7 @@
 package wechatgo
 
 import (
-	"os"
-
-	"github.com/Sirupsen/logrus"
+	"log"
 )
 
 type Logger interface {
@@ -27,16 +25,25 @@ type Logger interface {
 	// Fatalf(format string, args ...interface{})
 }
 
-func DefaultLogger() *logrus.Logger {
-	textFormatter := logrus.TextFormatter{}
-	textFormatter.FullTimestamp = true
-	textFormatter.ForceColors = true
-	textFormatter.TimestampFormat = "2006/01/02 15:04:05"
 
-	log := logrus.New()
-	log.SetFormatter(&textFormatter)
-	log.SetOutput(os.Stdout)
-	log.SetLevel(logrus.DebugLevel)
+type LoggerExample struct {}
 
-	return log
+func (l LoggerExample) Debug(args ...interface{}) {
+	log.Print(args...)
+}
+
+func (l LoggerExample) Info(args ...interface{}) {
+	log.Print(args...)
+}
+
+func (l LoggerExample) Warn(args ...interface{}) {
+	log.Print(args...)
+}
+
+func (l LoggerExample) Error(args ...interface{}) {
+	log.Print(args...)
+}
+
+func DefaultLogger() Logger {
+	return LoggerExample{}
 }

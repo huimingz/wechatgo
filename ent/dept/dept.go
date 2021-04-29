@@ -2,11 +2,11 @@
 package dept
 
 import (
-	"github.com/huimingz/wechatgo/ent/user"
 	"net/url"
 	"strconv"
 
 	"github.com/huimingz/wechatgo/ent"
+	"github.com/huimingz/wechatgo/ent/user"
 )
 
 const (
