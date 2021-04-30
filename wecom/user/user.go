@@ -192,7 +192,10 @@ type UserInfo struct {
 
 	// 头像url。注：如果要获取小图将url最后的”/0”改成”/100”即可。
 	// 第三方仅通讯录应用可获取
-	Avatar string `json:"avatar, omitempty"`
+	Avatar string `json:"avatar,omitempty"`
+
+	// 头像缩略图url。第三方仅通讯录应用可获取；对于非第三方创建的成员，第三方通讯录应用也不可获取
+	ThumbAvatar string `json:"thumb_avatar,omitempty"`
 
 	// 激活状态: 1=已激活，2=已禁用，4=未激活。
 	// 已激活代表已激活企业微信或已关注微工作台（原企业号）。
