@@ -162,6 +162,9 @@ type UserInfo struct {
 	// 成员所属部门id列表，仅返回该应用有查看权限的部门id
 	Department []int `json:"department"`
 
+	// 主部门ID
+	MainDepartMent int `json:"main_department"`
+
 	// 部门内的排序值，默认为0。数量必须和department一致，数值越大排序越前面
 	// 值范围是[0, 2^32)
 	Order []int `json:"order,omitempty"`
