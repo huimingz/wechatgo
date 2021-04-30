@@ -18,21 +18,21 @@ func TestWechatClient_IsExpired(t *testing.T) {
 		t.Error("WechatClient.IsExpired() error = 'isExpired != true'")
 	}
 
-	_ = wechatClient.GetAccessToken()
+	_, _ = wechatClient.GetAccessToken()
 	if wechatClient.IsExpired() != false {
 		t.Error("WechatClient.IsExpired() error = 'isExpired != false'")
 	}
 }
 
 func TestWechatClient_GetAccessToken(t *testing.T) {
-	var accessToken string = wechatClient.GetAccessToken()
+	accessToken, _ := wechatClient.GetAccessToken()
 	if accessToken == "" {
 		t.Error("WechatClient.GetAccessToken() 返回结果access_token为空字符串")
 	}
 
 	// invalid client
 	client := NewWechatClient("xxx", corpSecret, agentId, nil, 0, nil, nil, nil)
-	accessToken = client.GetAccessToken()
+	accessToken, _ = client.GetAccessToken()
 	if accessToken != "" {
 		t.Error("WechatClient.GetAccessToken() 返回结果access_token值为非空字符串")
 	}
@@ -43,7 +43,7 @@ func TestWechatClient_FetchAccessToken(t *testing.T) {
 	if err != nil {
 		t.Errorf("WechatClient.FetchAccessToken() error = %s", err)
 	}
-	if wechatClient.GetAccessToken() == "" {
+	if token, _ := wechatClient.GetAccessToken(); token == "" {
 		t.Error("WechatClient.FetchAccessToken() accessToken值为空字符串")
 	}
 }

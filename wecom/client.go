@@ -99,7 +99,7 @@ func (client *WechatClient) IsExpired() bool {
 // 提供access_token的获取接口
 //
 // 当access_token过期或者为空字符串时，会重新获取一次access_token
-func (client *WechatClient) GetAccessToken() string {
+func (client *WechatClient) GetAccessToken() (string, error) {
 	storageKey := client.GetAccessTokenStorageKey()
 	val := client.Storage.Get(storageKey)
 
@@ -110,11 +110,11 @@ func (client *WechatClient) GetAccessToken() string {
 		if err != nil {
 			client.Log.Error(
 				fmt.Sprintf("An error has occurred during getting access token，Error: %s\n", err.Error()))
-			return ""
+			return "", err
 		}
 		val = client.Storage.Get(storageKey)
 	}
-	return val
+	return val, nil
 }
 
 // 重新获取access token
@@ -235,7 +235,10 @@ func (client WechatClient) valuesTokenCompletion(values url.Values) (url.Values,
 	}
 
 	if values.Get("access_token") == "" {
-		token := client.GetAccessToken()
+		token, err := client.GetAccessToken()
+		if err != nil {
+			return values, err
+		}
 		if token == "" {
 			return values, errors.New("fresh access token  failed")
 		}
