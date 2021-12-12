@@ -8,6 +8,7 @@ package user
 import (
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/huimingz/wechatgo/wecom"
 )
@@ -23,6 +24,7 @@ const (
 	urlUserVerify      = "/cgi-bin/user/authsucc"
 	urlUerInvate       = "/cgi-bin/batch/invite"
 	urlGetJoinQRCode   = "/cgi-bin/corp/get_join_qrcode"
+	urlGetActiveStat   = "/cgi-bin/user/get_active_stat" // 获取企业活跃成员数
 )
 
 type UserAttrMiniProgram struct {
@@ -429,4 +431,20 @@ func (w *WechatUser) GetJoinQRCode(sizeType int) (joinQRCode string, err error) 
 	err = w.Client.Get(urlGetJoinQRCode, values, nil, &out)
 	joinQRCode = out.JoinQRCode
 	return
+}
+
+// GetActiveStat 获取企业活跃成员数
+func (w *WechatUser) GetActiveStat(date time.Time) (activeCount int, err error) {
+	payload := struct {
+		Date string `json:"date"`
+	}{
+		Date: date.Format("2006-01-02"),
+	}
+
+	out := struct {
+		ActiveCount int `json:"active_cnt"` // 活跃成员数
+	}{}
+
+	err = w.Client.Post(urlGetActiveStat, nil, payload, nil, &out)
+	return out.ActiveCount, err
 }
