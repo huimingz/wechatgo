@@ -10,23 +10,9 @@ type Logger interface {
 	Info(args ...interface{})
 	Warn(args ...interface{})
 	Error(args ...interface{})
-	// Fatal(args ...interface{})
-	//
-	// Debugln(args ...interface{})
-	// Infoln(args ...interface{})
-	// Warnln(args ...interface{})
-	// Errorln(args ...interface{})
-	// Fatalln(args ...interface{})
-	//
-	// Debugf(format string, args ...interface{})
-	// Infof(format string, args ...interface{})
-	// Warnf(format string, args ...interface{})
-	// Errorf(format string, args ...interface{})
-	// Fatalf(format string, args ...interface{})
 }
 
-
-type LoggerExample struct {}
+type LoggerExample struct{}
 
 func (l LoggerExample) Debug(args ...interface{}) {
 	log.Print(args...)
