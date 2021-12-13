@@ -80,6 +80,7 @@ func NewWechatClient(corpid, corpSecret string, agentId int, httpClient *http.Cl
 	return &client
 }
 
+// GetAccessTokenStorageKey 获取认证令牌缓存Key
 func (client WechatClient) GetAccessTokenStorageKey() string {
 	if client.storageKey == "" {
 		client.storageKey = "accesstoken_" + client.CorpSecret
@@ -87,7 +88,7 @@ func (client WechatClient) GetAccessTokenStorageKey() string {
 	return client.storageKey
 }
 
-// 检查access token是否过期
+// IsExpired 检查access token是否过期
 func (client *WechatClient) IsExpired() bool {
 	storageKey := client.GetAccessTokenStorageKey()
 	if client.Storage.HasExpired(storageKey) {
@@ -96,7 +97,7 @@ func (client *WechatClient) IsExpired() bool {
 	return false
 }
 
-// 提供access_token的获取接口
+// GetAccessToken 提供access_token的获取接口
 //
 // 当access_token过期或者为空字符串时，会重新获取一次access_token
 func (client *WechatClient) GetAccessToken() (string, error) {
