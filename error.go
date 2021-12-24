@@ -11,8 +11,8 @@ type WxMsgInterface interface {
 }
 
 type WXMsgError struct {
-	ErrCode int    `json:"errcode"`
-	ErrMsg  string `json:"errmsg"`
+	ErrCode int    `json:"errcode"` // 响应错误状态码
+	ErrMsg  string `json:"errmsg"`  // 响应错误消息内容
 }
 
 func (err WXMsgError) Error() string {
