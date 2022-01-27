@@ -3,8 +3,8 @@ package oa
 import (
 	"testing"
 
-	"github.com/huimingz/wechatgo/wecom"
 	"github.com/huimingz/wechatgo/testdata"
+	"github.com/huimingz/wechatgo/wecom"
 )
 
 var wechatApproval *WechatApproval
@@ -22,6 +22,6 @@ func TestWechatApproval_GetApprovalData(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.ApprovalSecret, conf.ApprovalAgentId, nil, 0, nil, nil, nil)
+	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.ApprovalSecret, conf.ApprovalAgentId)
 	wechatApproval = NewWechatApproval(wechatClient)
 }

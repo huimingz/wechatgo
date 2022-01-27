@@ -6,8 +6,8 @@ package oa
 import (
 	"testing"
 
-	"github.com/huimingz/wechatgo/wecom"
 	"github.com/huimingz/wechatgo/testdata"
+	"github.com/huimingz/wechatgo/wecom"
 )
 
 var wechatDial *WechatDial
@@ -24,6 +24,6 @@ func TestWechatDial_GetRecord(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.DialSecret, conf.DialAgentId, nil, 0, nil, nil, nil)
+	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.DialSecret, conf.DialAgentId)
 	wechatDial = NewWechatDial(wechatClient)
 }

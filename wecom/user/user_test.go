@@ -138,6 +138,6 @@ func TestWechatUser_GetJoinQRCode(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId, nil, 0, nil, nil, nil)
+	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
 	wechatUser = NewWechatUser(wechatClient)
 }

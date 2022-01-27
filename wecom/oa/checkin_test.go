@@ -3,8 +3,8 @@ package oa
 import (
 	"testing"
 
-	"github.com/huimingz/wechatgo/wecom"
 	"github.com/huimingz/wechatgo/testdata"
+	"github.com/huimingz/wechatgo/wecom"
 )
 
 var wechatCheckin *WechatCheckin
@@ -28,6 +28,6 @@ func TestWechatCheckin_GetOption(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CheckinSecret, conf.CheckinAgentId, nil, 0, nil, nil, nil)
+	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CheckinSecret, conf.CheckinAgentId)
 	wechatCheckin = NewWechatCheckin(wechatClient)
 }

@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/huimingz/wechatgo"
-	"github.com/huimingz/wechatgo/wecom"
 	"github.com/huimingz/wechatgo/testdata"
+	"github.com/huimingz/wechatgo/wecom"
 )
 
 var wechatAppManage *WechatAppManage
@@ -88,6 +88,6 @@ func TestWechatAppManage_DeleteMenu(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId, nil, 0, nil, nil, nil)
+	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
 	wechatAppManage = NewWechatAppManage(wechatClient)
 }

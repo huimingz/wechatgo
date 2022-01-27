@@ -39,42 +39,68 @@ type WechatClient struct {
 	Log         wechatgo.Logger // 日志
 }
 
-func NewWechatClient(corpid, corpSecret string, agentId int, httpClient *http.Client,
-	expiresIn time.Duration, mutex *sync.Mutex, storage_ storage.Storage, log_ wechatgo.Logger) *WechatClient {
+type WechatClientOption func(client *WechatClient)
+
+func WechatClientWithLogger(logger wechatgo.Logger) WechatClientOption {
+	return func(client *WechatClient) {
+		client.Log = logger
+	}
+}
+
+func WechatClientWithStorage(storage storage.Storage) WechatClientOption {
+	return func(client *WechatClient) {
+		client.Storage = storage
+	}
+}
+
+func WechatClientWithHTTPClient(httpClient *http.Client) WechatClientOption {
+	return func(client *WechatClient) {
+		client.HttpClient = httpClient
+	}
+}
+
+func WechatClientWithExpiresIn(sec time.Duration) WechatClientOption {
+	if sec <= 0 || sec > 7200 {
+		sec = time.Second * 7200
+	}
+
+	return func(client *WechatClient) {
+		client.ExpiresIn = sec
+	}
+}
+
+func WechatClientWithMutex(lock *sync.Mutex) WechatClientOption {
+	return func(client *WechatClient) {
+		client.Mutex = lock
+	}
+}
+
+func NewWechatClient(corpid, corpSecret string, agentId int, options ...WechatClientOption) *WechatClient {
 	client := WechatClient{}
 	client.CorpId = corpid
 	client.CorpSecret = corpSecret
 	client.AgentId = agentId
 	client.BaseUrl = EntBaseUrl
 
-	if httpClient == nil {
+	for _, opt := range options {
+		opt(&client)
+	}
+
+	if client.HttpClient == nil {
 		client.HttpClient = &http.Client{}
-	} else {
-		client.HttpClient = httpClient
 	}
-
-	if expiresIn <= 0 || expiresIn > 7200 {
+	if client.ExpiresIn == 0 {
 		client.ExpiresIn = time.Second * 7200
-	} else {
-		client.ExpiresIn = expiresIn
 	}
-
-	if mutex == nil {
+	if client.Mutex == nil {
 		client.Mutex = &sync.Mutex{}
-	} else {
-		client.Mutex = mutex
 	}
-
-	if storage_ == nil {
+	if client.Storage == nil {
 		client.Storage = storage.NewMemoryStorage()
-	} else {
-		client.Storage = storage_
 	}
 
-	if log_ == nil {
+	if client.Log == nil {
 		client.Log = wechatgo.DefaultLogger()
-	} else {
-		client.Log = log_
 	}
 
 	return &client

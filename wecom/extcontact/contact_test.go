@@ -4,8 +4,8 @@ package extcontact
 import (
 	"testing"
 
-	"github.com/huimingz/wechatgo/wecom"
 	"github.com/huimingz/wechatgo/testdata"
+	"github.com/huimingz/wechatgo/wecom"
 )
 
 var wechatContact *WechatContact
@@ -19,6 +19,6 @@ func TestWechatContact_GetUserList(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId, nil, 0, nil, nil, nil)
+	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
 	wechatContact = NewWechatContact(wechatClient)
 }
