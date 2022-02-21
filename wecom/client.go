@@ -206,41 +206,6 @@ func (client *WechatClient) FetchAccessToken() error {
 	return nil
 }
 
-// func (client *WechatClient) RespJsonUnmarshal(response *http.Response, v interface{}) error {
-// 	if response.StatusCode != 200 {
-// 		return errors.New("Response.StatusCode != 200")
-// 	}
-//
-// 	// defer response.Body.Close()
-// 	content, err := ioutil.ReadAll(response.Body)
-// 	if err != nil {
-// 		return err
-// 	}
-//
-// 	err = json.Unmarshal(content, v)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	// TODO: 检查errcode
-//
-// 	return nil
-// }
-
-// func (client WechatClient) WXMsgChecker(msg common.WXMsgInterface) error {
-// 	if msg.GetErrCode() != 0 {
-// 		if v, ok := msg.(error); ok {
-// 			if reflect.ValueOf(v).Kind() == reflect.Ptr {
-// 				return msg
-// 			} else {
-// 				return error(msg)
-// 			}
-// 		} else {
-// 			return fmt.Errorf("errcode=%d", msg.GetErrCode())
-// 		}
-// 	}
-// 	return nil
-// }
-
 func (client *WechatClient) UrlCompletion(reqUrl string) string {
 	re, _ := regexp.Compile("^https?://.*")
 	if !re.MatchString(reqUrl) {
