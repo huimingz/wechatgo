@@ -1,4 +1,4 @@
-// Package client 客服端
+// Package wecom 客服端
 //
 // 特性：
 // 线程安全；access token过期自动
