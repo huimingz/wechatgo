@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -22,9 +23,9 @@ func NewMemoryStorage() *MemoryStorage {
 	return &ms
 }
 
-func (s MemoryStorage) Get(key string) string {
+func (s MemoryStorage) Get(ctx context.Context, key string) string {
 	data, ok := s.data[key]
-	if ok && s.HasExpired(key) {
+	if ok && s.HasExpired(ctx, key) {
 		s.mutex.Lock()
 		defer s.mutex.Unlock()
 		delete(s.data, key)
@@ -33,7 +34,7 @@ func (s MemoryStorage) Get(key string) string {
 	return data.value
 }
 
-func (s MemoryStorage) Set(key, val string, ttl time.Duration) error {
+func (s MemoryStorage) Set(ctx context.Context, key string, val string, ttl time.Duration) error {
 	now := time.Now()
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -41,7 +42,7 @@ func (s MemoryStorage) Set(key, val string, ttl time.Duration) error {
 	return nil
 }
 
-func (s MemoryStorage) HasExpired(key string) bool {
+func (s MemoryStorage) HasExpired(ctx context.Context, key string) bool {
 	now := time.Now()
 	val, ok := s.data[key]
 	if !ok {

@@ -2,16 +2,17 @@
 package storage
 
 import (
+	"context"
 	"time"
 )
 
 type Storage interface {
 	// Get 获取Value
-	Get(key string) string
+	Get(ctx context.Context, key string) string
 
 	// Set 设置Value，包含TTL
-	Set(key, val string, ttl time.Duration) error
+	Set(ctx context.Context, key, val string, ttl time.Duration) error
 
 	// HasExpired 检测是否过期
-	HasExpired(key string) bool
+	HasExpired(ctx context.Context, key string) bool
 }

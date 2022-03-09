@@ -6,6 +6,7 @@ package wecom
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -115,9 +116,9 @@ func (client WechatClient) GetAccessTokenStorageKey() string {
 }
 
 // IsExpired 检查access token是否过期
-func (client *WechatClient) IsExpired() bool {
+func (client *WechatClient) IsExpired(ctx context.Context) bool {
 	storageKey := client.GetAccessTokenStorageKey()
-	if client.Storage.HasExpired(storageKey) {
+	if client.Storage.HasExpired(ctx, storageKey) {
 		return true
 	}
 	return false
@@ -126,28 +127,28 @@ func (client *WechatClient) IsExpired() bool {
 // GetAccessToken 提供access_token的获取接口
 //
 // 当access_token过期或者为空字符串时，会重新获取一次access_token
-func (client *WechatClient) GetAccessToken() (string, error) {
+func (client *WechatClient) GetAccessToken(ctx context.Context) (string, error) {
 	storageKey := client.GetAccessTokenStorageKey()
-	val := client.Storage.Get(storageKey)
+	val := client.Storage.Get(ctx, storageKey)
 
 	if val == "" {
 		client.Log.Info("The access token is expired, try to get a new access token")
 
-		err := client.FetchAccessToken()
+		err := client.FetchAccessToken(ctx)
 		if err != nil {
 			client.Log.Error(
 				fmt.Sprintf("An error has occurred during getting access token，Error: %s\n", err.Error()))
 			return "", err
 		}
-		val = client.Storage.Get(storageKey)
+		val = client.Storage.Get(ctx, storageKey)
 	}
 	return val, nil
 }
 
-// 重新获取access token
+// FetchAccessToken 重新获取access token
 //
 // 当设置的过期时间为无效（<0 || >7200）时，将自动重置过期时间为远程指定时间
-func (client *WechatClient) FetchAccessToken() error {
+func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 	values := url.Values{}
 	values.Add("corpid", client.CorpId)
 	values.Add("corpsecret", client.CorpSecret)
@@ -196,7 +197,7 @@ func (client *WechatClient) FetchAccessToken() error {
 
 		key := client.GetAccessTokenStorageKey()
 		client.Log.Info("Set new access token to storage.")
-		err = client.Storage.Set(key, accessToken.AccessToken, client.ExpiresIn)
+		err = client.Storage.Set(ctx, key, accessToken.AccessToken, client.ExpiresIn)
 		if err != nil {
 			return err
 		}
@@ -221,13 +222,13 @@ func (client *WechatClient) UrlCompletion(reqUrl string) string {
 	}
 }
 
-func (client WechatClient) valuesTokenCompletion(values url.Values) (url.Values, error) {
+func (client WechatClient) valuesTokenCompletion(ctx context.Context, values url.Values) (url.Values, error) {
 	if values == nil {
 		values = url.Values{}
 	}
 
 	if values.Get("access_token") == "" {
-		token, err := client.GetAccessToken()
+		token, err := client.GetAccessToken(ctx)
 		if err != nil {
 			return values, err
 		}
@@ -277,7 +278,8 @@ func (client WechatClient) respHandler(resp *http.Response, errmsg wechatgo.WxMs
 }
 
 func (client *WechatClient) Get(url_ string, values url.Values, errmsg wechatgo.WxMsgInterface, out interface{}) error {
-	values, err := client.valuesTokenCompletion(values)
+	ctx := context.Background()
+	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
 	}
@@ -299,7 +301,8 @@ func (client *WechatClient) Get(url_ string, values url.Values, errmsg wechatgo.
 }
 
 func (client *WechatClient) RawGet(url_ string, values url.Values) (resp *http.Response, err error) {
-	values, err = client.valuesTokenCompletion(values)
+	ctx := context.Background()
+	values, err = client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +320,8 @@ func (client *WechatClient) RawGet(url_ string, values url.Values) (resp *http.R
 }
 
 func (client *WechatClient) AdvPost(url_, contentType string, values url.Values, data interface{}, errmsg wechatgo.WxMsgInterface, out interface{}) error {
-	values, err := client.valuesTokenCompletion(values)
+	ctx := context.Background()
+	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
 	}
