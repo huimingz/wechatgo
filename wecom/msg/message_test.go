@@ -1,6 +1,7 @@
 package msg
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
@@ -61,7 +62,7 @@ func TestWechatMsg_SendText(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := wechatMsg.SendText(tt.args.toUser, tt.args.toParty, tt.args.toTag, tt.args.text, tt.args.safe)
+			err := wechatMsg.SendText(context.Background(), tt.args.toUser, tt.args.toParty, tt.args.toTag, tt.args.text, tt.args.safe)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("WechatMsg.SendText() error = %v wantError = %v", err, tt.wantErr)
 			}
@@ -84,7 +85,7 @@ func TestWechatMsg_SendMarkdown(t *testing.T) {
             > 
             >如需修改会议信息，请点击：[修改会议信息](https://work.weixin.qq.com)`
 
-	err := wechatMsg.SendMarkdown([]string{testdata.TestConf.UserId}, nil, nil, MarkdownMsg{Content: text})
+	err := wechatMsg.SendMarkdown(context.Background(), []string{testdata.TestConf.UserId}, nil, nil, MarkdownMsg{Content: text})
 	if err != nil {
 		t.Errorf("WechatMsg.SendMarkdown() error = '%s'", err)
 	}

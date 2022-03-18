@@ -2,6 +2,7 @@
 package msg
 
 import (
+	"context"
 	"strings"
 
 	"github.com/huimingz/wechatgo/wecom"
@@ -178,9 +179,9 @@ func NewWechatMsg(client *wecom.WechatClient) *WechatMsg {
 }
 
 // 发送消息
-func (w WechatMsg) send(data interface{}) error {
+func (w WechatMsg) send(ctx context.Context, data interface{}) error {
 	errmsg := MsgError{}
-	err := w.Client.Post(urlSend, nil, data, &errmsg, nil)
+	err := w.Client.Post(ctx, urlSend, nil, data, &errmsg, nil)
 
 	if errmsg.InvalidUser != "" || errmsg.InvalidTag != "" || errmsg.InvalidParty != "" {
 		return &errmsg
@@ -197,7 +198,7 @@ func (w WechatMsg) send(data interface{}) error {
 // （可参考以上示例代码）(注意：换行符请用转义过的\n)
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E6%96%87%E6%9C%AC%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendText(toUser []string, toParty, toTag []int, text TextMsg, safe bool) error {
+func (w WechatMsg) SendText(ctx context.Context, toUser []string, toParty, toTag []int, text TextMsg, safe bool) error {
 	data := struct {
 		sendData
 		Text TextMsg `json:"text"`
@@ -210,13 +211,13 @@ func (w WechatMsg) SendText(toUser []string, toParty, toTag []int, text TextMsg,
 	} else {
 		data.Safe = 0
 	}
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 图片消息
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E5%9B%BE%E7%89%87%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendImage(toUser []string, toParty, toTag []int, image ImageMsg, safe bool) error {
+func (w WechatMsg) SendImage(ctx context.Context, toUser []string, toParty, toTag []int, image ImageMsg, safe bool) error {
 	data := struct {
 		sendData
 		Image ImageMsg `json:"image"`
@@ -229,26 +230,26 @@ func (w WechatMsg) SendImage(toUser []string, toParty, toTag []int, image ImageM
 	} else {
 		data.Safe = 0
 	}
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 语音消息
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E8%AF%AD%E9%9F%B3%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendVoice(toUser []string, toParty, toTag []int, voice VoiceMsg) error {
+func (w WechatMsg) SendVoice(ctx context.Context, toUser []string, toParty, toTag []int, voice VoiceMsg) error {
 	data := struct {
 		sendData
 		Voice VoiceMsg `json:"voice"`
 	}{}
 	data.Init(toUser, toParty, toTag, "voice", w.Client.AgentId)
 	data.Voice = voice
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 视频消息
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E8%A7%86%E9%A2%91%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendVideo(toUser []string, toParty, toTag []int, video VideoMsg, safe bool) error {
+func (w WechatMsg) SendVideo(ctx context.Context, toUser []string, toParty, toTag []int, video VideoMsg, safe bool) error {
 	data := struct {
 		sendData
 		Video VideoMsg `json:"video"`
@@ -261,13 +262,13 @@ func (w WechatMsg) SendVideo(toUser []string, toParty, toTag []int, video VideoM
 	} else {
 		data.Safe = 0
 	}
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 文件消息
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E6%96%87%E4%BB%B6%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendFile(toUser []string, toParty, toTag []int, file FileMsg, safe bool) error {
+func (w WechatMsg) SendFile(ctx context.Context, toUser []string, toParty, toTag []int, file FileMsg, safe bool) error {
 	data := struct {
 		sendData
 		File FileMsg `json:"file"`
@@ -280,33 +281,33 @@ func (w WechatMsg) SendFile(toUser []string, toParty, toTag []int, file FileMsg,
 	} else {
 		data.Safe = 0
 	}
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 文本卡片消息
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E6%96%87%E6%9C%AC%E5%8D%A1%E7%89%87%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendTextCard(toUser []string, toParty, toTag []int, textCard TextCardMsg) error {
+func (w WechatMsg) SendTextCard(ctx context.Context, toUser []string, toParty, toTag []int, textCard TextCardMsg) error {
 	data := struct {
 		sendData
 		TextCard TextCardMsg `json:"textcard"`
 	}{}
 	data.Init(toUser, toParty, toTag, "textcard", w.Client.AgentId)
 	data.TextCard = textCard
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 图文消息
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E5%9B%BE%E6%96%87%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendNews(toUser []string, toParty, toTag []int, news NewsMsg) error {
+func (w WechatMsg) SendNews(ctx context.Context, toUser []string, toParty, toTag []int, news NewsMsg) error {
 	data := struct {
 		sendData
 		News NewsMsg `json:"news"`
 	}{}
 	data.Init(toUser, toParty, toTag, "news", w.Client.AgentId)
 	data.News = news
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 图文消息（mpnews）
@@ -315,7 +316,7 @@ func (w WechatMsg) SendNews(toUser []string, toParty, toTag []int, news NewsMsg)
 // 多次发送mpnews，会被认为是不同的图文，阅读、点赞的统计会被分开计算。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E5%9B%BE%E6%96%87%E6%B6%88%E6%81%AF%EF%BC%88mpnews%EF%BC%89
-func (w WechatMsg) SendMPNews(toUser []string, toParty, toTag []int, mpNews MPNewsMsg, safe bool) error {
+func (w WechatMsg) SendMPNews(ctx context.Context, toUser []string, toParty, toTag []int, mpNews MPNewsMsg, safe bool) error {
 	data := struct {
 		sendData
 		MPNews MPNewsMsg `json:"mpnews"`
@@ -333,7 +334,7 @@ func (w WechatMsg) SendMPNews(toUser []string, toParty, toTag []int, mpNews MPNe
 	} else {
 		data.Safe = 0
 	}
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // markdown消息
@@ -342,14 +343,14 @@ func (w WechatMsg) SendMPNews(toUser []string, toParty, toTag []int, mpNews MPNe
 // 微工作台（原企业号）不支持展示markdown消息
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/markdown%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendMarkdown(toUser []string, toParty, toTag []int, md MarkdownMsg) error {
+func (w WechatMsg) SendMarkdown(ctx context.Context, toUser []string, toParty, toTag []int, md MarkdownMsg) error {
 	data := struct {
 		sendData
 		Markdown MarkdownMsg `json:"markdown"`
 	}{}
 	data.Init(toUser, toParty, toTag, "markdown", w.Client.AgentId)
 	data.Markdown = md
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 小程序通知消息
@@ -359,14 +360,14 @@ func (w WechatMsg) SendMarkdown(toUser []string, toParty, toTag []int, md Markdo
 // 不支持@all全员发送
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E5%B0%8F%E7%A8%8B%E5%BA%8F%E9%80%9A%E7%9F%A5%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendMiniProgramNotice(toUser []string, toParty, toTag []int, mpn MiniProgramNoticeMsg) error {
+func (w WechatMsg) SendMiniProgramNotice(ctx context.Context, toUser []string, toParty, toTag []int, mpn MiniProgramNoticeMsg) error {
 	data := struct {
 		sendData
 		MiniProgramNotice MiniProgramNoticeMsg `json:"miniprogram_notice"`
 	}{}
 	data.Init(toUser, toParty, toTag, "miniprogram_notice", w.Client.AgentId)
 	data.MiniProgramNotice = mpn
-	return w.send(data)
+	return w.send(ctx, data)
 }
 
 // 任务卡片消息
@@ -374,12 +375,12 @@ func (w WechatMsg) SendMiniProgramNotice(toUser []string, toParty, toTag []int, 
 // 仅企业微信2.8.2及以上版本支持
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90236/%E4%BB%BB%E5%8A%A1%E5%8D%A1%E7%89%87%E6%B6%88%E6%81%AF
-func (w WechatMsg) SendTaskCard(toUser []string, toParty, toTag []int, taskCard TaskCardMsg) error {
+func (w WechatMsg) SendTaskCard(ctx context.Context, toUser []string, toParty, toTag []int, taskCard TaskCardMsg) error {
 	data := struct {
 		sendData
 		TaskCard TaskCardMsg `json:"taskcard"`
 	}{}
 	data.Init(toUser, toParty, toTag, "taskcard", w.Client.AgentId)
 	data.TaskCard = taskCard
-	return w.send(data)
+	return w.send(ctx, data)
 }
