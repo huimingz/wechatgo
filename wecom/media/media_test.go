@@ -1,6 +1,7 @@
 package media
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -37,7 +38,7 @@ func TestWechatMedia_UploadMedia(t *testing.T) {
 				t.Errorf("WechatMedia_UploadMedia() error = %v, wantErr = %v", err, tt.wantErr)
 			}
 
-			mediaInfo, err := wechatMedia.UploadMedia(tt.filename, tt.type_, file)
+			mediaInfo, err := wechatMedia.UploadMedia(context.Background(), tt.filename, tt.type_, file)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("WechatMedia_UploadMedia() error = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -47,7 +48,7 @@ func TestWechatMedia_UploadMedia(t *testing.T) {
 }
 
 func TestWechatMedia_GetMedia(t *testing.T) {
-	body, fn, err := wechatMedia.GetMedia(mediaId)
+	body, fn, err := wechatMedia.GetMedia(context.Background(), mediaId)
 	if err != nil {
 		t.Errorf("WechatMedia.GetMedia() error = '%s'", err)
 	}

@@ -3,6 +3,7 @@ package media
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"mime/multipart"
@@ -41,7 +42,7 @@ func NewWechatMedia(client *wecom.WechatClient) *WechatMedia {
 // 素材上传得到media_id，该media_id仅三天内有效，media_id在同一企业内应用之间可以共享
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90253
-func (w WechatMedia) UploadMedia(filename, type_ string, r io.Reader) (*MediaInfo, error) {
+func (w WechatMedia) UploadMedia(ctx context.Context, filename, type_ string, r io.Reader) (*MediaInfo, error) {
 	mediaInfo := MediaInfo{}
 	bodyBuf := new(bytes.Buffer)
 	bodyWriter := multipart.NewWriter(bodyBuf)
@@ -60,7 +61,7 @@ func (w WechatMedia) UploadMedia(filename, type_ string, r io.Reader) (*MediaInf
 	values := url.Values{}
 	values.Add("type", type_)
 
-	err = w.Client.AdvPost(urlUploadMedia, contentType, values, bodyBuf, nil, &mediaInfo)
+	err = w.Client.AdvPost(ctx, urlUploadMedia, contentType, values, bodyBuf, nil, &mediaInfo)
 	return &mediaInfo, err
 }
 
@@ -107,11 +108,11 @@ func (w WechatMedia) getMediaFilename(header http.Header) (fn string, err error)
 // 获取临时素材
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90254
-func (w WechatMedia) GetMedia(mediaId string) (body io.ReadCloser, fn string, err error) {
+func (w WechatMedia) GetMedia(ctx context.Context, mediaId string) (body io.ReadCloser, fn string, err error) {
 	values := url.Values{}
 	values.Add("media_id", mediaId)
 
-	resp, err := w.Client.RawGet(urlGetMedia, values)
+	resp, err := w.Client.RawGet(ctx, urlGetMedia, values)
 	if err != nil {
 		return
 	}
@@ -135,7 +136,7 @@ func (w WechatMedia) GetMedia(mediaId string) (body io.ReadCloser, fn string, er
 // 上传永久图片
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90256
-func (w WechatMedia) UploadPerpetualImg(filename string, r io.Reader) (url string, err error) {
+func (w WechatMedia) UploadPerpetualImg(ctx context.Context, filename string, r io.Reader) (url string, err error) {
 	bodyBuf := new(bytes.Buffer)
 	bodyWriter := multipart.NewWriter(bodyBuf)
 
@@ -157,7 +158,7 @@ func (w WechatMedia) UploadPerpetualImg(filename string, r io.Reader) (url strin
 	}
 
 	imgInfo_ := imgInfo{}
-	err = w.Client.AdvPost(urlUploadPerpetualImg, contentType, nil, bodyBuf, nil, &imgInfo_)
+	err = w.Client.AdvPost(ctx, urlUploadPerpetualImg, contentType, nil, bodyBuf, nil, &imgInfo_)
 	if err != nil {
 		return
 	}
@@ -172,11 +173,11 @@ func (w WechatMedia) UploadPerpetualImg(filename string, r io.Reader) (url strin
 // 识别等对音质要求较高的业务。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90255
-func (w WechatMedia) GetVoice(mediaId string) (body io.ReadCloser, fn string, err error) {
+func (w WechatMedia) GetVoice(ctx context.Context, mediaId string) (body io.ReadCloser, fn string, err error) {
 	values := url.Values{}
 	values.Add("media_id", mediaId)
 
-	resp, err := w.Client.RawGet(urlGetVoice, values)
+	resp, err := w.Client.RawGet(ctx, urlGetVoice, values)
 	if err != nil {
 		return nil, "", err
 	}
