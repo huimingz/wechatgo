@@ -161,6 +161,7 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 		return err
 	}
 
+	request = request.WithContext(ctx)
 	resp, err := client.HttpClient.Do(request)
 	if err != nil {
 		return err
@@ -240,7 +241,7 @@ func (client WechatClient) valuesTokenCompletion(ctx context.Context, values url
 	return values, nil
 }
 
-func (client WechatClient) respHandler(resp *http.Response, errmsg wechatgo.WxMsgInterface, out interface{}) error {
+func (client WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WxMsgInterface, out interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
@@ -277,8 +278,7 @@ func (client WechatClient) respHandler(resp *http.Response, errmsg wechatgo.WxMs
 	return nil
 }
 
-func (client *WechatClient) Get(url_ string, values url.Values, errmsg wechatgo.WxMsgInterface, out interface{}) error {
-	ctx := context.Background()
+func (client *WechatClient) Get(ctx context.Context, url_ string, values url.Values, errmsg wechatgo.WxMsgInterface, out interface{}) error {
 	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
@@ -292,16 +292,16 @@ func (client *WechatClient) Get(url_ string, values url.Values, errmsg wechatgo.
 		return err
 	}
 
+	request = request.WithContext(ctx)
 	resp, err := client.HttpClient.Do(request)
 	if err != nil {
 		return err
 	}
-	err = client.respHandler(resp, errmsg, out)
+	err = client.respHandler(ctx, resp, errmsg, out)
 	return err
 }
 
-func (client *WechatClient) RawGet(url_ string, values url.Values) (resp *http.Response, err error) {
-	ctx := context.Background()
+func (client *WechatClient) RawGet(ctx context.Context, url_ string, values url.Values) (resp *http.Response, err error) {
 	values, err = client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return nil, err
@@ -315,12 +315,12 @@ func (client *WechatClient) RawGet(url_ string, values url.Values) (resp *http.R
 		return nil, err
 	}
 
+	request = request.WithContext(ctx)
 	resp, err = client.HttpClient.Do(request)
 	return resp, err
 }
 
-func (client *WechatClient) AdvPost(url_, contentType string, values url.Values, data interface{}, errmsg wechatgo.WxMsgInterface, out interface{}) error {
-	ctx := context.Background()
+func (client *WechatClient) AdvPost(ctx context.Context, url_, contentType string, values url.Values, data interface{}, errmsg wechatgo.WxMsgInterface, out interface{}) error {
 	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
@@ -344,15 +344,17 @@ func (client *WechatClient) AdvPost(url_, contentType string, values url.Values,
 	if err != nil {
 		return err
 	}
+
+	request = request.WithContext(ctx)
 	request.Header.Add("Content-Type", contentType)
 	resp, err := client.HttpClient.Do(request)
 	if err != nil {
 		return err
 	}
 
-	return client.respHandler(resp, errmsg, out)
+	return client.respHandler(ctx, resp, errmsg, out)
 }
 
-func (client WechatClient) Post(url_ string, values url.Values, data interface{}, errmsg wechatgo.WxMsgInterface, out interface{}) error {
-	return client.AdvPost(url_, "application/json", values, data, errmsg, out)
+func (client WechatClient) Post(ctx context.Context, url_ string, values url.Values, data interface{}, errmsg wechatgo.WxMsgInterface, out interface{}) error {
+	return client.AdvPost(ctx, url_, "application/json", values, data, errmsg, out)
 }
