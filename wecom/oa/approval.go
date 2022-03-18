@@ -2,6 +2,8 @@
 package oa
 
 import (
+	"context"
+
 	"github.com/huimingz/wechatgo/wecom"
 )
 
@@ -70,7 +72,7 @@ func NewWechatApproval(client *wecom.WechatClient) *WechatApproval {
 // 过多次拉取的方式来满足需求，但调用频率不可超过600次/分。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91530
-func (w WechatApproval) GetApprovalData(startTime, endTime, nextSpNum int) (*ApprovalData, error) {
+func (w WechatApproval) GetApprovalData(ctx context.Context, startTime, endTime, nextSpNum int) (*ApprovalData, error) {
 	data := struct {
 		StartTime int `json:"starttime"`            // 获取审批记录的开始时间。Unix时间戳
 		EndTime   int `json:"endtime"`              // 获取审批记录的结束时间。Unix时间戳
@@ -82,6 +84,6 @@ func (w WechatApproval) GetApprovalData(startTime, endTime, nextSpNum int) (*App
 	}
 
 	out := ApprovalData{}
-	err := w.Client.Post(urlGetApprovalData, nil, data, nil, &out)
+	err := w.Client.Post(ctx, urlGetApprovalData, nil, data, nil, &out)
 	return &out, err
 }

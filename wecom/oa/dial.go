@@ -5,6 +5,8 @@
 package oa
 
 import (
+	"context"
+
 	"github.com/huimingz/wechatgo/wecom"
 )
 
@@ -42,7 +44,7 @@ func NewWechatDial(client *wecom.WechatClient) *WechatDial {
 // 企业可通过此接口，按时间范围拉取成功接通的公费电话拨打记录。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90267
-func (w WechatDial) GetRecord(startTime, endTime, offset, limit int) ([]DialRecord, error) {
+func (w WechatDial) GetRecord(ctx context.Context, startTime, endTime, offset, limit int) ([]DialRecord, error) {
 	data := struct {
 		StartTime int `json:"start_time,omitempty"` // 查询的起始时间戳
 		EndTime   int `json:"end_time,omitempty"`   // 查询的结束时间戳
@@ -59,6 +61,6 @@ func (w WechatDial) GetRecord(startTime, endTime, offset, limit int) ([]DialReco
 		Record []DialRecord `json:"record"`
 	}{}
 
-	err := w.Client.Post(urlGetDialRecord, nil, data, nil, &out)
+	err := w.Client.Post(ctx, urlGetDialRecord, nil, data, nil, &out)
 	return out.Record, err
 }

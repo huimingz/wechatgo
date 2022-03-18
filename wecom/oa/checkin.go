@@ -2,6 +2,8 @@
 package oa
 
 import (
+	"context"
+
 	"github.com/huimingz/wechatgo/wecom"
 )
 
@@ -90,7 +92,7 @@ func NewWechatCheckin(client *wecom.WechatClient) *WechatCheckin {
 // 获取打卡数据
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90262
-func (w WechatCheckin) GetData(checkinType, startTime, endTime int, userIds []string) ([]CheckinData, error) {
+func (w WechatCheckin) GetData(ctx context.Context, checkinType, startTime, endTime int, userIds []string) ([]CheckinData, error) {
 	data := struct {
 		OpenCheckinDataType int      `json:"opencheckindatatype"` // 打卡类型。1：上下班打卡；2：外出打卡；3：全部打卡
 		StartTime           int      `json:"starttime"`           // 获取打卡记录的开始时间。Unix时间戳
@@ -106,14 +108,14 @@ func (w WechatCheckin) GetData(checkinType, startTime, endTime int, userIds []st
 	out := struct {
 		CheckinData []CheckinData `json:"checkindata"`
 	}{}
-	err := w.Client.Post(urlGetCheckinData, nil, data, nil, &out)
+	err := w.Client.Post(ctx, urlGetCheckinData, nil, data, nil, &out)
 	return out.CheckinData, err
 }
 
 // 获取打卡规则
 //
 // 企业微信文档：https://work.weixin.qq.com/api/doc#90000/90135/90263
-func (w WechatCheckin) GetOption(dateTime int, userIds []string) ([]CheckinOptInfo, error) {
+func (w WechatCheckin) GetOption(ctx context.Context, dateTime int, userIds []string) ([]CheckinOptInfo, error) {
 	data := struct {
 		DateTime   int      `json:"datetime"`   // 需要获取规则的日期当天0点的Unix时间戳
 		UserIdList []string `json:"useridlist"` // 需要获取打卡规则的用户列表
@@ -126,6 +128,6 @@ func (w WechatCheckin) GetOption(dateTime int, userIds []string) ([]CheckinOptIn
 		Info []CheckinOptInfo `json:"info"`
 	}{}
 
-	err := w.Client.Post(urlGetCheckinOption, nil, data, nil, &out)
+	err := w.Client.Post(ctx, urlGetCheckinOption, nil, data, nil, &out)
 	return out.Info, err
 }

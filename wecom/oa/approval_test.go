@@ -1,6 +1,7 @@
 package oa
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
@@ -10,7 +11,7 @@ import (
 var wechatApproval *WechatApproval
 
 func TestWechatApproval_GetApprovalData(t *testing.T) {
-	data, err := wechatApproval.GetApprovalData(1559048367, 1561640367, 0)
+	data, err := wechatApproval.GetApprovalData(context.Background(), 1559048367, 1561640367, 0)
 	if err != nil {
 		t.Errorf("WechatApproval.GetApprovalData() error = '%s'", err)
 	}

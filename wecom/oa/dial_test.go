@@ -4,6 +4,7 @@
 package oa
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
@@ -13,7 +14,7 @@ import (
 var wechatDial *WechatDial
 
 func TestWechatDial_GetRecord(t *testing.T) {
-	record, err := wechatDial.GetRecord(1559048367, 1561640367, 0, 0)
+	record, err := wechatDial.GetRecord(context.Background(), 1559048367, 1561640367, 0, 0)
 	if err != nil {
 		t.Errorf("WechatDial.GetRecord() error = '%s'", err)
 	}

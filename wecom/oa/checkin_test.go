@@ -1,6 +1,7 @@
 package oa
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
@@ -10,7 +11,7 @@ import (
 var wechatCheckin *WechatCheckin
 
 func TestWechatCheckin_GetData(t *testing.T) {
-	data, err := wechatCheckin.GetData(3, 1559048367, 1561640367, []string{testdata.TestConf.UserId})
+	data, err := wechatCheckin.GetData(context.Background(), 3, 1559048367, 1561640367, []string{testdata.TestConf.UserId})
 	if err != nil {
 		t.Errorf("WechatCheckin.GetData() error = '%s'", err)
 	}
@@ -20,7 +21,7 @@ func TestWechatCheckin_GetData(t *testing.T) {
 }
 
 func TestWechatCheckin_GetOption(t *testing.T) {
-	_, err := wechatCheckin.GetOption(1511971200, []string{testdata.TestConf.UserId})
+	_, err := wechatCheckin.GetOption(context.Background(), 1511971200, []string{testdata.TestConf.UserId})
 	if err == nil {
 		t.Error("WechatCheckin.GetOption() error = '未出现错误'")
 	}
