@@ -6,6 +6,7 @@
 package user
 
 import (
+	"context"
 	"net/url"
 	"strconv"
 	"time"
@@ -289,50 +290,50 @@ func NewWechatUser(client *wecom.WechatClient) *WechatUser {
 // 的可见范围内的成员信息。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90196
-func (w *WechatUser) GetUser(userId string) (*UserInfo, error) {
+func (w *WechatUser) GetUser(ctx context.Context, userId string) (*UserInfo, error) {
 	values := url.Values{}
 	values.Add("userid", userId)
 
 	out := UserInfo{}
-	err := w.Client.Get(urlUserGet, values, nil, &out)
+	err := w.Client.Get(ctx, urlUserGet, values, nil, &out)
 	return &out, err
 }
 
 // 创建成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90195
-func (w *WechatUser) CreateUser(data UserForCreate) error {
-	return w.Client.Post(urlUserCreate, nil, data, nil, nil)
+func (w *WechatUser) CreateUser(ctx context.Context, data UserForCreate) error {
+	return w.Client.Post(ctx, urlUserCreate, nil, data, nil, nil)
 }
 
 // 更新成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90197
-func (w *WechatUser) UpdateUser(data UserForUpdate) error {
-	return w.Client.Post(urlUserUpdate, nil, data, nil, nil)
+func (w *WechatUser) UpdateUser(ctx context.Context, data UserForUpdate) error {
+	return w.Client.Post(ctx, urlUserUpdate, nil, data, nil, nil)
 }
 
 // 删除成员
 //
 // https://work.weixin.qq.com/api/doc#90000/90135/90198
-func (w *WechatUser) DeleteUser(userId string) error {
+func (w *WechatUser) DeleteUser(ctx context.Context, userId string) error {
 	values := url.Values{}
 	values.Add("userid", userId)
 
-	return w.Client.Get(urlUserDelete, values, nil, nil)
+	return w.Client.Get(ctx, urlUserDelete, values, nil, nil)
 }
 
 // 批量删除成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90199
-func (w *WechatUser) DeleteUsers(userIdlist []string) error {
+func (w *WechatUser) DeleteUsers(ctx context.Context, userIdlist []string) error {
 	users := struct {
 		UserIdList []string `json:"useridlist"`
 	}{
 		UserIdList: userIdlist,
 	}
 
-	return w.Client.Post(urlBatchUserDelete, nil, users, nil, nil)
+	return w.Client.Post(ctx, urlBatchUserDelete, nil, users, nil, nil)
 }
 
 // userid转openid
@@ -342,7 +343,7 @@ func (w *WechatUser) DeleteUsers(userIdlist []string) error {
 // 注：需要成员使用微信登录企业微信或者关注微工作台（原企业号）才能转成openid
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90202
-func (w *WechatUser) UserId2OpenId(userId string) (openId string, err error) {
+func (w *WechatUser) UserId2OpenId(ctx context.Context, userId string) (openId string, err error) {
 	data := struct {
 		UserId string `json:"userid"` // 企业内的成员id
 	}{
@@ -352,7 +353,7 @@ func (w *WechatUser) UserId2OpenId(userId string) (openId string, err error) {
 	out := struct {
 		OpenId string `json:"openid"` // 企业微信成员userid对应的openid
 	}{}
-	err = w.Client.Post(urlUserId2OpenId, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlUserId2OpenId, nil, data, nil, &out)
 	openId = out.OpenId
 	return
 }
@@ -365,7 +366,7 @@ func (w *WechatUser) UserId2OpenId(userId string) (openId string, err error) {
 // 可以通过调用该接口进行转换查询。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90202
-func (w *WechatUser) OpenId2UserId(openid string) (userId string, err error) {
+func (w *WechatUser) OpenId2UserId(ctx context.Context, openid string) (userId string, err error) {
 	data := struct {
 		OpenId string `json:"openid"` // 在使用企业支付之后，返回结果的openid
 	}{
@@ -375,7 +376,7 @@ func (w *WechatUser) OpenId2UserId(openid string) (userId string, err error) {
 	out := struct {
 		UserId string `json:"userid"` // 该openid在企业微信对应的成员userid
 	}{}
-	err = w.Client.Post(urlOpenId2UserId, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlOpenId2UserId, nil, data, nil, &out)
 	userId = out.UserId
 	return
 }
@@ -386,11 +387,11 @@ func (w *WechatUser) OpenId2UserId(openid string) (userId string, err error) {
 // 开启二次验证后，用户加入企业时需要跳转企业自定义的页面进行验证。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90203
-func (w *WechatUser) Verify(userId string) error {
+func (w *WechatUser) Verify(ctx context.Context, userId string) error {
 	values := url.Values{}
 	values.Add("userid", userId)
 
-	return w.Client.Get(urlUserVerify, values, nil, nil)
+	return w.Client.Get(ctx, urlUserVerify, values, nil, nil)
 }
 
 // 邀请成员
@@ -398,7 +399,7 @@ func (w *WechatUser) Verify(userId string) error {
 // 企业可通过接口批量邀请成员使用企业微信，邀请后将通过短信或邮件下发通知。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90975
-func (w *WechatUser) Invite(user []string, party, tag []int) error {
+func (w *WechatUser) Invite(ctx context.Context, user []string, party, tag []int) error {
 	data := struct {
 		User  []string `json:"user"`  // 成员ID列表, 最多支持1000个
 		Party []int    `json:"party"` // 部门ID列表，最多支持100个
@@ -409,7 +410,7 @@ func (w *WechatUser) Invite(user []string, party, tag []int) error {
 		Tag:   tag,
 	}
 
-	return w.Client.Post(urlUerInvate, nil, data, &InvitError{}, nil)
+	return w.Client.Post(ctx, urlUerInvate, nil, data, &InvitError{}, nil)
 }
 
 // 获取加入企业二维码
@@ -418,7 +419,7 @@ func (w *WechatUser) Invite(user []string, party, tag []int) error {
 // 二维码链接，有效期7天
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91714
-func (w *WechatUser) GetJoinQRCode(sizeType int) (joinQRCode string, err error) {
+func (w *WechatUser) GetJoinQRCode(ctx context.Context, sizeType int) (joinQRCode string, err error) {
 	values := url.Values{}
 	if sizeType != 0 {
 		values.Add("size_type", strconv.Itoa(sizeType))
@@ -428,13 +429,13 @@ func (w *WechatUser) GetJoinQRCode(sizeType int) (joinQRCode string, err error) 
 		JoinQRCode string `json:"join_qrcode"`
 	}{}
 
-	err = w.Client.Get(urlGetJoinQRCode, values, nil, &out)
+	err = w.Client.Get(ctx, urlGetJoinQRCode, values, nil, &out)
 	joinQRCode = out.JoinQRCode
 	return
 }
 
 // GetActiveStat 获取企业活跃成员数
-func (w *WechatUser) GetActiveStat(date time.Time) (activeCount int, err error) {
+func (w *WechatUser) GetActiveStat(ctx context.Context, date time.Time) (activeCount int, err error) {
 	payload := struct {
 		Date string `json:"date"`
 	}{
@@ -445,6 +446,6 @@ func (w *WechatUser) GetActiveStat(date time.Time) (activeCount int, err error) 
 		ActiveCount int `json:"active_cnt"` // 活跃成员数
 	}{}
 
-	err = w.Client.Post(urlGetActiveStat, nil, payload, nil, &out)
+	err = w.Client.Post(ctx, urlGetActiveStat, nil, payload, nil, &out)
 	return out.ActiveCount, err
 }
