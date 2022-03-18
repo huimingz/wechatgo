@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -29,7 +30,7 @@ func TestWechatOAuth_QRCodeUrl(t *testing.T) {
 
 func TestWechatOAuth_GetUserInfo(t *testing.T) {
 	code := "KyUxwLmpx5coUKU_BiPA2ICBdlDYZQtcPmeyocC_QUY"
-	_, err := wechatOauth.GetUserInfo(code)
+	_, err := wechatOauth.GetUserInfo(context.Background(), code)
 	if err != nil {
 		if v, ok := err.(*wechatgo.WXMsgError); ok {
 			if v.ErrCode != 40029 {

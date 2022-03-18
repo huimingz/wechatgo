@@ -2,6 +2,7 @@
 package oauth
 
 import (
+	"context"
 	"net/url"
 	"strconv"
 
@@ -69,11 +70,11 @@ func (w WechatOAuth) QRCodeUrl(redirectUrl, state string) string {
 	return qrCodeUrl
 }
 
-func (w WechatOAuth) GetUserInfo(code string) (*UserInfo, error) {
+func (w WechatOAuth) GetUserInfo(ctx context.Context, code string) (*UserInfo, error) {
 	values := url.Values{}
 	values.Add("code", code)
 
 	userInfo := UserInfo{}
-	err := w.Client.Get(userInfoUrl, values, nil, &userInfo)
+	err := w.Client.Get(ctx, userInfoUrl, values, nil, &userInfo)
 	return &userInfo, err
 }
