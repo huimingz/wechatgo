@@ -2,6 +2,8 @@
 package invoice
 
 import (
+	"context"
+
 	"github.com/huimingz/wechatgo/wecom"
 )
 
@@ -69,7 +71,7 @@ func NewWechatInvoice(client *wecom.WechatClient) *WechatInvoice {
 	return &WechatInvoice{client}
 }
 
-func (w WechatInvoice) GetInfo(cardId, encryptCode string) (*InvoiceInfo, error) {
+func (w WechatInvoice) GetInfo(ctx context.Context, cardId, encryptCode string) (*InvoiceInfo, error) {
 	data := struct {
 		CardId      string `json:"card_id"`      // 发票id
 		EncryptCode string `json:"encrypt_code"` // 加密code
@@ -79,11 +81,11 @@ func (w WechatInvoice) GetInfo(cardId, encryptCode string) (*InvoiceInfo, error)
 	}
 
 	out := InvoiceInfo{}
-	err := w.Client.Post(urlGetInfo, nil, data, nil, &out)
+	err := w.Client.Post(ctx, urlGetInfo, nil, data, nil, &out)
 	return &out, err
 }
 
-func (w WechatInvoice) GetInfoBatch(items []CardInfo) (invList []InvoiceInfo, err error) {
+func (w WechatInvoice) GetInfoBatch(ctx context.Context, items []CardInfo) (invList []InvoiceInfo, err error) {
 	data := struct {
 		ItemList []CardInfo `json:"item_list"`
 	}{
@@ -94,12 +96,12 @@ func (w WechatInvoice) GetInfoBatch(items []CardInfo) (invList []InvoiceInfo, er
 		ItemList []InvoiceInfo `json:"item_list"`
 	}{}
 
-	err = w.Client.Post(urlGetInfoBatch, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlGetInfoBatch, nil, data, nil, &out)
 	invList = out.ItemList
 	return
 }
 
-func (w WechatInvoice) UpdateStatus(cardId, encryptCode, reimburseStatus string) error {
+func (w WechatInvoice) UpdateStatus(ctx context.Context, cardId, encryptCode, reimburseStatus string) error {
 	// TODO: 检查reimburseStatus是否有效
 	data := struct {
 		// 发票id
@@ -119,7 +121,7 @@ func (w WechatInvoice) UpdateStatus(cardId, encryptCode, reimburseStatus string)
 		ReimburseStatus: reimburseStatus,
 	}
 
-	return w.Client.Post(urlUpdateStatus, nil, data, nil, nil)
+	return w.Client.Post(ctx, urlUpdateStatus, nil, data, nil, nil)
 }
 
 // 批量更新发票状态
@@ -128,7 +130,7 @@ func (w WechatInvoice) UpdateStatus(cardId, encryptCode, reimburseStatus string)
 // 注意，报销状态为不可逆状态，请开发者慎重调用。
 //
 // 企业微信API：https://work.weixin.qq.com/api/doc#90000/90135/90286
-func (w WechatInvoice) UpdateStatusBatch(openId, reimburseStatus string, invoiceList []CardInfo) error {
+func (w WechatInvoice) UpdateStatusBatch(ctx context.Context, openId, reimburseStatus string, invoiceList []CardInfo) error {
 	data := struct {
 		// 用户openid，可用“userid与openid互换接口”获取
 		OpenId string `json:"openid"`
@@ -147,5 +149,5 @@ func (w WechatInvoice) UpdateStatusBatch(openId, reimburseStatus string, invoice
 		InvoiceList:     invoiceList,
 	}
 
-	return w.Client.Post(urlUpdateStatusBatch, nil, data, nil, nil)
+	return w.Client.Post(ctx, urlUpdateStatusBatch, nil, data, nil, nil)
 }
