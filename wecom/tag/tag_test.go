@@ -1,6 +1,7 @@
 package tag
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
@@ -10,7 +11,7 @@ import (
 var wechatTag *WechatTag
 
 func TestWechatTag_Create(t *testing.T) {
-	tagId, err := wechatTag.Create(99, "example")
+	tagId, err := wechatTag.Create(context.Background(), 99, "example")
 	if err != nil {
 		t.Errorf("WechatTag.Create() error = '%s'", err)
 	}
@@ -20,14 +21,14 @@ func TestWechatTag_Create(t *testing.T) {
 }
 
 func TestWechatTag_Update(t *testing.T) {
-	err := wechatTag.Update(99, "example_2")
+	err := wechatTag.Update(context.Background(), 99, "example_2")
 	if err != nil {
 		t.Errorf("WechatTag.Update() error = '%s'", err)
 	}
 }
 
 func TestWechatTag_GetTagList(t *testing.T) {
-	tagList, err := wechatTag.GetTagList()
+	tagList, err := wechatTag.GetTagList(context.Background())
 	if err != nil {
 		t.Errorf("WechatTag.GetTagList() error = '%s'", err)
 	}
@@ -44,12 +45,12 @@ func TestWechatTag_GetTagList(t *testing.T) {
 }
 
 func TestWechatTag_AddUser(t *testing.T) {
-	err := wechatTag.AddUser(99, []string{testdata.TestConf.UserId}, nil)
+	err := wechatTag.AddUser(context.Background(), 99, []string{testdata.TestConf.UserId}, nil)
 	if err != nil {
 		t.Errorf("WechatTag.AddUser() error = '%s'", err)
 	}
 
-	err = wechatTag.AddUser(99, []string{"huimingzxxx"}, nil)
+	err = wechatTag.AddUser(context.Background(), 99, []string{"huimingzxxx"}, nil)
 	if err == nil {
 		t.Error("WechatTag.AddUser() error = '未出现期望的错误'")
 	} else {
@@ -62,7 +63,7 @@ func TestWechatTag_AddUser(t *testing.T) {
 }
 
 func TestWechatTag_GetUserList(t *testing.T) {
-	tagName, userList, partyList, err := wechatTag.GetUserList(99)
+	tagName, userList, partyList, err := wechatTag.GetUserList(context.Background(), 99)
 	if err != nil {
 		t.Errorf("WechatTag.GetUserList() error = '%s'", err)
 	}
@@ -78,14 +79,14 @@ func TestWechatTag_GetUserList(t *testing.T) {
 }
 
 func TestWechatTag_DeleteUser(t *testing.T) {
-	err := wechatTag.DeleteUser(99, []string{testdata.TestConf.UserId}, nil)
+	err := wechatTag.DeleteUser(context.Background(), 99, []string{testdata.TestConf.UserId}, nil)
 	if err != nil {
 		t.Errorf("WechatTag.DeleteUser() error = '%s'", err)
 	}
 }
 
 func TestWechatTag_Delete(t *testing.T) {
-	err := wechatTag.Delete(99)
+	err := wechatTag.Delete(context.Background(), 99)
 	if err != nil {
 		t.Errorf("WechatTag.Delete() error = '%s'", err)
 	}
