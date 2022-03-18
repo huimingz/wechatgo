@@ -2,6 +2,7 @@
 package dept
 
 import (
+	"context"
 	"net/url"
 	"strconv"
 
@@ -45,14 +46,14 @@ func NewWechatDept(client *wecom.WechatClient) *WechatDept {
 // 只能拉取token对应的应用的权限范围内的部门列表
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90208
-func (w WechatDept) Get(deptId int) ([]DeptInfo, error) {
+func (w WechatDept) Get(ctx context.Context, deptId int) ([]DeptInfo, error) {
 	values := url.Values{}
 	values.Add("id", strconv.Itoa(deptId))
 
 	out := struct {
 		Department []DeptInfo `json:"department"`
 	}{}
-	err := w.Client.Get(urlDeptGet, values, nil, &out)
+	err := w.Client.Get(ctx, urlDeptGet, values, nil, &out)
 	return out.Department, err
 }
 
@@ -62,18 +63,18 @@ func (w WechatDept) Get(deptId int) ([]DeptInfo, error) {
 // 只能拉取token对应的应用的权限范围内的部门列表
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90208
-func (w WechatDept) GetList() ([]DeptInfo, error) {
+func (w WechatDept) GetList(ctx context.Context) ([]DeptInfo, error) {
 	out := struct {
 		Department []DeptInfo `json:"department"`
 	}{}
-	err := w.Client.Get(urlDeptGet, nil, nil, &out)
+	err := w.Client.Get(ctx, urlDeptGet, nil, nil, &out)
 	return out.Department, err
 }
 
 // 获取部门成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90200
-func (w WechatDept) GetUserList(deptId int, fetchChild bool) ([]UserInfo, error) {
+func (w WechatDept) GetUserList(ctx context.Context, deptId int, fetchChild bool) ([]UserInfo, error) {
 	values := url.Values{}
 	values.Add("department_id", strconv.Itoa(deptId))
 	if fetchChild {
@@ -86,14 +87,14 @@ func (w WechatDept) GetUserList(deptId int, fetchChild bool) ([]UserInfo, error)
 		UserList []UserInfo `json:"userlist"`
 	}{}
 
-	err := w.Client.Get(urlGetUserList, values, nil, &out)
+	err := w.Client.Get(ctx, urlGetUserList, values, nil, &out)
 	return out.UserList, err
 }
 
 // 获取部门成员详情
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90201
-func (w WechatDept) GetUserDetailList(deptId int, fetchChild bool) ([]user.UserInfo, error) {
+func (w WechatDept) GetUserDetailList(ctx context.Context, deptId int, fetchChild bool) ([]user.UserInfo, error) {
 	values := url.Values{}
 	values.Add("department_id", strconv.Itoa(deptId))
 	if fetchChild {
@@ -105,7 +106,7 @@ func (w WechatDept) GetUserDetailList(deptId int, fetchChild bool) ([]user.UserI
 	out := struct {
 		UserList []user.UserInfo `json:"userlist"`
 	}{}
-	err := w.Client.Get(urlGetUserDetailList, values, nil, &out)
+	err := w.Client.Get(ctx, urlGetUserDetailList, values, nil, &out)
 	return out.UserList, err
 }
 
@@ -115,7 +116,7 @@ func (w WechatDept) GetUserDetailList(deptId int, fetchChild bool) ([]user.UserI
 // 建议保证创建的部门和对应部门成员是串行化处理。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90205
-func (w WechatDept) Create(name string, parentId, order, deptId int) (id int, err error) {
+func (w WechatDept) Create(ctx context.Context, name string, parentId, order, deptId int) (id int, err error) {
 	data := struct {
 		Name     string `json:"name"`
 		ParentId int    `json:"parentid,omitempty"`
@@ -131,7 +132,7 @@ func (w WechatDept) Create(name string, parentId, order, deptId int) (id int, er
 	out := struct {
 		Id int `json:"id"`
 	}{}
-	err = w.Client.Post(urlDeptCreate, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlDeptCreate, nil, data, nil, &out)
 	return out.Id, err
 }
 
@@ -140,7 +141,7 @@ func (w WechatDept) Create(name string, parentId, order, deptId int) (id int, er
 // 注意，部门的最大层级为15层；部门总数不能超过3万个；每个部门下的节点不能超过3万个。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90206
-func (w WechatDept) Update(deptId, parentId, order int, name string) error {
+func (w WechatDept) Update(ctx context.Context, deptId, parentId, order int, name string) error {
 	data := struct {
 		Id       int    `json:"id"`
 		Name     string `json:"name,omitempty"`
@@ -153,15 +154,15 @@ func (w WechatDept) Update(deptId, parentId, order int, name string) error {
 		Order:    order,
 	}
 
-	return w.Client.Post(urlDeptUpdate, nil, data, nil, nil)
+	return w.Client.Post(ctx, urlDeptUpdate, nil, data, nil, nil)
 }
 
 // 删除部门
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90207
-func (w WechatDept) Delete(deptId int) error {
+func (w WechatDept) Delete(ctx context.Context, deptId int) error {
 	values := url.Values{}
 	values.Add("id", strconv.Itoa(deptId))
 
-	return w.Client.Get(urlDeptDelete, values, nil, nil)
+	return w.Client.Get(ctx, urlDeptDelete, values, nil, nil)
 }

@@ -1,6 +1,7 @@
 package dept
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo"
@@ -11,7 +12,7 @@ import (
 var wechatDept *WechatDept
 
 func TestWechatDept_Get(t *testing.T) {
-	info, err := wechatDept.Get(1)
+	info, err := wechatDept.Get(context.Background(), 1)
 	if err != nil {
 		t.Errorf("WechatDept.Get() error = '%s'", err)
 	}
@@ -21,7 +22,7 @@ func TestWechatDept_Get(t *testing.T) {
 }
 
 func TestWechatDept_GetList(t *testing.T) {
-	info, err := wechatDept.GetList()
+	info, err := wechatDept.GetList(context.Background())
 	if err != nil {
 		t.Errorf("WechatDept.GetList() error = '%s'", err)
 	}
@@ -31,7 +32,7 @@ func TestWechatDept_GetList(t *testing.T) {
 }
 
 func TestWechatDept_GetUserList(t *testing.T) {
-	users, err := wechatDept.GetUserList(1, false)
+	users, err := wechatDept.GetUserList(context.Background(), 1, false)
 	if err != nil {
 		t.Errorf("WechatDept.GetUserList() error = '%s'", err)
 	}
@@ -39,7 +40,7 @@ func TestWechatDept_GetUserList(t *testing.T) {
 		t.Error("WechatDept.GetUserList() error = '返回部门成员为空'")
 	}
 
-	cusers, err := wechatDept.GetUserList(1, true)
+	cusers, err := wechatDept.GetUserList(context.Background(), 1, true)
 	if err != nil {
 		t.Errorf("WechatDept.GetUserList() error = '%s'", err)
 	}
@@ -49,7 +50,7 @@ func TestWechatDept_GetUserList(t *testing.T) {
 }
 
 func TestWechatDept_GetUserDetailList(t *testing.T) {
-	users, err := wechatDept.GetUserDetailList(1, false)
+	users, err := wechatDept.GetUserDetailList(context.Background(), 1, false)
 	if err != nil {
 		t.Errorf("WechatDept.GetUserDetailList() error = '%s'", err)
 	}
@@ -57,7 +58,7 @@ func TestWechatDept_GetUserDetailList(t *testing.T) {
 		t.Error("WechatDept.GetUserDetailList() error = '返回部门成员详情为空'")
 	}
 
-	cusers, err := wechatDept.GetUserDetailList(1, true)
+	cusers, err := wechatDept.GetUserDetailList(context.Background(), 1, true)
 	if err != nil {
 		t.Errorf("WechatDept.GetUserDetailList() error = '%s'", err)
 	}
@@ -67,7 +68,7 @@ func TestWechatDept_GetUserDetailList(t *testing.T) {
 }
 
 func TestWechatDept_Create(t *testing.T) {
-	id, err := wechatDept.Create("testdata", 1, 0, 18)
+	id, err := wechatDept.Create(context.Background(), "testdata", 1, 0, 18)
 	if err != nil {
 		if v, ok := err.(*wechatgo.WXMsgError); ok {
 			if v.ErrCode != 60008 {
@@ -81,12 +82,12 @@ func TestWechatDept_Create(t *testing.T) {
 }
 
 func TestWechatDept_Update(t *testing.T) {
-	err := wechatDept.Update(18, 0, 0, "test_test")
+	err := wechatDept.Update(context.Background(), 18, 0, 0, "test_test")
 	if err != nil {
 		t.Errorf("WechatDept.Update() error = '%s'", err)
 	}
 
-	infos, err := wechatDept.Get(18)
+	infos, err := wechatDept.Get(context.Background(), 18)
 	if err != nil {
 		t.Errorf("WechatDept.Update() error = '%s'", err)
 	}
@@ -96,7 +97,7 @@ func TestWechatDept_Update(t *testing.T) {
 }
 
 func TestWechatDept_Delete(t *testing.T) {
-	err := wechatDept.Delete(18)
+	err := wechatDept.Delete(context.Background(), 18)
 	if err != nil {
 		t.Errorf("WechatDept.Delete() error = '%s'", err)
 	}
