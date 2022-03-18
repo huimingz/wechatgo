@@ -2,6 +2,7 @@
 package extcontact
 
 import (
+	"context"
 	"net/url"
 
 	"github.com/huimingz/wechatgo/wecom"
@@ -134,12 +135,12 @@ func NewWechatContact(client *wecom.WechatClient) *WechatContact {
 // 企业和第三方服务商可通过此接口获取配置了客户联系功能的成员列表。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91554
-func (w WechatContact) GetFollowUserList() (followUser []string, err error) {
+func (w WechatContact) GetFollowUserList(ctx context.Context) (followUser []string, err error) {
 	out := struct {
 		FollowUser []string `json:"follow_user"` // 配置了客户联系功能的成员userid列表
 	}{}
 
-	err = w.Client.Get(urlGetFollowUserList, nil, nil, &out)
+	err = w.Client.Get(ctx, urlGetFollowUserList, nil, nil, &out)
 	followUser = out.FollowUser
 	return
 }
@@ -150,12 +151,12 @@ func (w WechatContact) GetFollowUserList() (followUser []string, err error) {
 // 的外部联系人。没有配置客户联系功能的成员，所添加的外部联系人将不会作为客户返回。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91555
-func (w WechatContact) GetUserList() (externalUserId []string, err error) {
+func (w WechatContact) GetUserList(ctx context.Context) (externalUserId []string, err error) {
 	out := struct {
 		ExternalUserId []string `json:"external_userid"` // 外部联系人的userid列表
 	}{}
 
-	err = w.Client.Get(urlGetUserList, nil, nil, &out)
+	err = w.Client.Get(ctx, urlGetUserList, nil, nil, &out)
 	externalUserId = out.ExternalUserId
 	return
 }
@@ -165,19 +166,19 @@ func (w WechatContact) GetUserList() (externalUserId []string, err error) {
 // 企业可通过此接口，根据外部联系人的userid，拉取外部联系人详情。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91556
-func (w WechatContact) GetUserDetail(userId string) (*ExternalUserDetail, error) {
+func (w WechatContact) GetUserDetail(ctx context.Context, userId string) (*ExternalUserDetail, error) {
 	values := url.Values{}
 	values.Add("external_userid", userId)
 
 	out := ExternalUserDetail{}
-	err := w.Client.Get(urlGetUserDetail, values, nil, &out)
+	err := w.Client.Get(ctx, urlGetUserDetail, values, nil, &out)
 	return &out, err
 }
 
 // 配置客户联系「联系我」方式
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91559
-func (w WechatContact) AddContactWay(type_, scene, style int, remark, state string, skipVerify bool, user []string, party []int) (configId string, err error) {
+func (w WechatContact) AddContactWay(ctx context.Context, type_, scene, style int, remark, state string, skipVerify bool, user []string, party []int) (configId string, err error) {
 	data := struct {
 		Type       int      `json:"type"`             // 联系方式类型,1-单人, 2-多人
 		Scene      int      `json:"scene"`            // 场景，1-在小程序中联系，2-通过二维码联系
@@ -200,7 +201,7 @@ func (w WechatContact) AddContactWay(type_, scene, style int, remark, state stri
 	out := struct {
 		ConfigId string `json:"config_id"`
 	}{}
-	err = w.Client.Post(urlAddContactWay, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlAddContactWay, nil, data, nil, &out)
 	configId = out.ConfigId
 	return
 }
@@ -208,13 +209,13 @@ func (w WechatContact) AddContactWay(type_, scene, style int, remark, state stri
 // 添加企业群发消息模板
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91560
-func (w WechatContact) AddMsgTemplate(msgTemplate MsgTemplate) (failList []string, msgId string, err error) {
+func (w WechatContact) AddMsgTemplate(ctx context.Context, msgTemplate MsgTemplate) (failList []string, msgId string, err error) {
 	out := struct {
 		FailList []string `json:"fail_list"`
 		MsgId    string   `json:"msgid"`
 	}{}
 
-	err = w.Client.Post(urlAddMsgTemplate, nil, msgTemplate, nil, &out)
+	err = w.Client.Post(ctx, urlAddMsgTemplate, nil, msgTemplate, nil, &out)
 	failList = out.FailList
 	msgId = out.MsgId
 	return
@@ -223,20 +224,20 @@ func (w WechatContact) AddMsgTemplate(msgTemplate MsgTemplate) (failList []strin
 // 获取企业群发消息发送结果
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91561
-func (w WechatContact) GetGroupMsgResult(msgId string) (*GroupMsgResult, error) {
+func (w WechatContact) GetGroupMsgResult(ctx context.Context, msgId string) (*GroupMsgResult, error) {
 	data := struct {
 		MsgId string `json:"msgid"` // 群发消息的id，通过添加企业群发消息模板接口返回
 	}{}
 
 	out := GroupMsgResult{}
-	err := w.Client.Post(urlGetGroupMsgResult, nil, data, nil, &out)
+	err := w.Client.Post(ctx, urlGetGroupMsgResult, nil, data, nil, &out)
 	return &out, err
 }
 
 // 获取员工行为数据
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91580
-func (w WechatContact) GetUserBehaviorData(userIds []string, startTime, endTime int) (behavior []UserBehavior, err error) {
+func (w WechatContact) GetUserBehaviorData(ctx context.Context, userIds []string, startTime, endTime int) (behavior []UserBehavior, err error) {
 	data := struct {
 		UserId    []string `json:"userid"`     // userid列表
 		StartTime int      `json:"start_time"` // 数据起始时间
@@ -246,7 +247,7 @@ func (w WechatContact) GetUserBehaviorData(userIds []string, startTime, endTime 
 		BehaviorData []UserBehavior `json:"behaviro_data"`
 	}{}
 
-	err = w.Client.Post(urlGetUserBehaviorData, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlGetUserBehaviorData, nil, data, nil, &out)
 	behavior = out.BehaviorData
 	return
 }
@@ -254,8 +255,8 @@ func (w WechatContact) GetUserBehaviorData(userIds []string, startTime, endTime 
 // 发送新客户欢迎语
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91688
-func (w WechatContact) SendWelcomeMsg(welcomeMsg WelcomeMsg) error {
-	return w.Client.Post(urlSendWelcomeMsg, nil, welcomeMsg, nil, nil)
+func (w WechatContact) SendWelcomeMsg(ctx context.Context, welcomeMsg WelcomeMsg) error {
+	return w.Client.Post(ctx, urlSendWelcomeMsg, nil, welcomeMsg, nil, nil)
 }
 
 // 获取离职成员的客户列表
@@ -264,7 +265,7 @@ func (w WechatContact) SendWelcomeMsg(welcomeMsg WelcomeMsg) error {
 // 联系人再分配接口将这些客户重新分配给其他企业成员。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91563
-func (w WechatContact) GetUnassignedList(pageId, pageSize int) (userlist []UnassignedUser, isLast bool, err error) {
+func (w WechatContact) GetUnassignedList(ctx context.Context, pageId, pageSize int) (userlist []UnassignedUser, isLast bool, err error) {
 	data := struct {
 		PageId   int `json:"page_id,omitempty"`   // 分页查询，要查询页号，从0开始
 		PageSize int `json:"page_size,omitempty"` // 每次返回的最大记录数，默认为1000，最大值为1000
@@ -274,7 +275,7 @@ func (w WechatContact) GetUnassignedList(pageId, pageSize int) (userlist []Unass
 		IsLast bool             `json:"is_last"`
 	}{}
 
-	err = w.Client.Post(urlGetUnassignedList, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlGetUnassignedList, nil, data, nil, &out)
 	userlist = out.Info
 	isLast = out.IsLast
 	return
@@ -285,12 +286,12 @@ func (w WechatContact) GetUnassignedList(pageId, pageSize int) (userlist []Unass
 // 企业可通过此接口，将已离职成员的外部联系人分配给另一个成员接替联系。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91564
-func (w WechatContact) Transfer(externalUserId, handoverUserId, takeoverUserId string) error {
+func (w WechatContact) Transfer(ctx context.Context, externalUserId, handoverUserId, takeoverUserId string) error {
 	data := struct {
 		ExternalUserId string `json:"external_userid"` // 外部联系人的userid，注意不是企业成员的帐号
 		HandoverUserId string `json:"handover_userid"` // 离职成员的userid
 		TakeoverUserId string `json:"takeover_userid"` // 接替成员的userid
 	}{}
 
-	return w.Client.Post(urlTransfer, nil, data, nil, nil)
+	return w.Client.Post(ctx, urlTransfer, nil, data, nil, nil)
 }

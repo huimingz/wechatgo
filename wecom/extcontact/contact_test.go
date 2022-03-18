@@ -2,6 +2,7 @@
 package extcontact
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
@@ -11,7 +12,7 @@ import (
 var wechatContact *WechatContact
 
 func TestWechatContact_GetUserList(t *testing.T) {
-	_, err := wechatContact.GetUserList()
+	_, err := wechatContact.GetUserList(context.Background())
 	if err == nil {
 		t.Error("WechatContact.GetUserList() error = '未出现期望的错误'")
 	}
