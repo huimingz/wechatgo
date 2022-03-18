@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"testing"
 
 	"github.com/huimingz/wechatgo"
@@ -10,15 +11,11 @@ import (
 
 var wechatAppManage *WechatAppManage
 
-type a struct {
-	 name byte
-}
-
 func TestWechatAppManage_CreateApp(t *testing.T) {
 	app := AppInfo{}
 	app.AgentId = 1000321
 	app.Description = "some comment for app"
-	err := wechatAppManage.CreateApp(app)
+	err := wechatAppManage.CreateApp(context.Background(), app)
 	if err != nil {
 		if v, ok := err.(*wechatgo.WXMsgError); ok {
 			if v.ErrCode != 301002 {
@@ -31,7 +28,7 @@ func TestWechatAppManage_CreateApp(t *testing.T) {
 }
 
 func TestWechatAppManage_GetAllApp(t *testing.T) {
-	appIntro, err := wechatAppManage.GetAllApp()
+	appIntro, err := wechatAppManage.GetAllApp(context.Background())
 	if err != nil {
 		t.Errorf("WechatAppManage.GetAllApp() error = '%s'", err)
 	}
@@ -41,7 +38,7 @@ func TestWechatAppManage_GetAllApp(t *testing.T) {
 }
 
 func TestWechatAppManage_GetApp(t *testing.T) {
-	appDetail, err := wechatAppManage.GetApp(testdata.TestConf.AgentId)
+	appDetail, err := wechatAppManage.GetApp(context.Background(), testdata.TestConf.AgentId)
 	if err != nil {
 		t.Errorf("WechatAppManage.GetApp(%d) error = '%s'", testdata.TestConf.AgentId, err)
 	}
@@ -60,14 +57,14 @@ func TestWechatAppManage_CreateMenu(t *testing.T) {
 		SubButton: nil,
 	}
 	menu.Button = append(menu.Button, button1)
-	err := wechatAppManage.CreateMenu(menu, 0)
+	err := wechatAppManage.CreateMenu(context.Background(), menu, 0)
 	if err != nil {
 		t.Errorf("WechatAppManage.CreateMenu() error = '%s'", err)
 	}
 }
 
 func TestWechatAppManage_GetMenu(t *testing.T) {
-	menu, err := wechatAppManage.GetMenu(testdata.TestConf.AgentId)
+	menu, err := wechatAppManage.GetMenu(context.Background(), testdata.TestConf.AgentId)
 	if err != nil {
 		t.Errorf("WechatAppManage.GetMenu(%d) error = '%s'", testdata.TestConf.AgentId, err)
 	}
@@ -80,7 +77,7 @@ func TestWechatAppManage_GetMenu(t *testing.T) {
 }
 
 func TestWechatAppManage_DeleteMenu(t *testing.T) {
-	err := wechatAppManage.DeleteMenu(0)
+	err := wechatAppManage.DeleteMenu(context.Background(), 0)
 	if err != nil {
 		t.Errorf("WechatAppManage.DeleteMenu() error = '%s'", err)
 	}
