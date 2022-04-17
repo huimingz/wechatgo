@@ -381,6 +381,15 @@ func (w *WechatUser) OpenId2UserId(ctx context.Context, openid string) (userId s
 	return
 }
 
+// Phone2UserId 手机号换userid
+func (w *WechatUser) Phone2UserId(ctx context.Context, phone string) (userId string, err error) {
+	if phone == "" {
+		return "", nil
+	}
+
+	return "", nil
+}
+
 // 二次验证
 //
 // 此接口可以满足安全性要求高的企业进行成员加入验证。
