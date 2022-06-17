@@ -18,6 +18,7 @@ const (
 	urlDeptCreate        = "/cgi-bin/department/create"
 	urlDeptUpdate        = "/cgi-bin/department/update"
 	urlDeptDelete        = "/cgi-bin/department/delete"
+	urlDeptSimpleList    = "/cgi-bin/department/simplelist"
 )
 
 type DeptInfo struct {
@@ -90,6 +91,17 @@ func (w WechatDept) GetList(ctx context.Context) ([]DeptInfo, error) {
 		Department []DeptInfo `json:"department"`
 	}{}
 	err := w.Client.Get(ctx, urlDeptGet, nil, nil, &out)
+	return out.Department, err
+}
+
+func (w WechatDept) GetSubList(ctx context.Context, id int) ([]DeptInfo, error) {
+	values := url.Values{}
+	values.Add("id", strconv.Itoa(id))
+
+	out := struct {
+		Department []DeptInfo `json:"department"`
+	}{}
+	err := w.Client.Get(ctx, urlDeptSimpleList, values, nil, &out)
 	return out.Department, err
 }
 
