@@ -80,7 +80,7 @@ func (w WechatDept) GetDetail(ctx context.Context, deptId int) (*DepartmentDetai
 	return &out.Department, err
 }
 
-// 获取部门列表
+// GetList 获取部门列表
 //
 // 权限说明：
 // 只能拉取token对应的应用的权限范围内的部门列表
