@@ -51,7 +51,7 @@ func NewWechatDept(client *wecom.WechatClient) *WechatDept {
 	return &WechatDept{client}
 }
 
-// 获取指定部门及其下的子部门
+// Get 获取指定部门及其下的子部门
 //
 // 权限说明：
 // 只能拉取token对应的应用的权限范围内的部门列表
