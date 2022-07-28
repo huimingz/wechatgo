@@ -105,7 +105,7 @@ func (w WechatDept) GetSubList(ctx context.Context, id int) ([]DeptInfo, error) 
 	return out.Department, err
 }
 
-// 获取部门成员
+// GetUserList 获取部门成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90200
 func (w WechatDept) GetUserList(ctx context.Context, deptId int, fetchChild bool) ([]UserInfo, error) {
