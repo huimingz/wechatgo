@@ -29,7 +29,7 @@ type WechatClient struct {
 	CorpId      string          // 企业ID
 	CorpSecret  string          // 应用的凭证密钥
 	AgentId     int             // agentid
-	HttpClient  *http.Client    // http.Client
+	HttpClient  *http.Client    // http.Client 对象
 	accessToken string          // 凭证
 	ExpiresIn   time.Duration   // 凭证的有效时间
 	lastFresh   time.Time       // 最后一次token刷新时间
