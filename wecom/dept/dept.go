@@ -191,7 +191,7 @@ func (w WechatDept) Update(ctx context.Context, deptId, parentId, order int, nam
 	return w.Client.Post(ctx, urlDeptUpdate, nil, data, nil, nil)
 }
 
-// 删除部门
+// Delete 删除部门
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90207
 func (w WechatDept) Delete(ctx context.Context, deptId int) error {
