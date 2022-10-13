@@ -170,7 +170,7 @@ func (w WechatDept) Create(ctx context.Context, name string, parentId, order, de
 	return out.Id, err
 }
 
-// 更新部门
+// Update 更新部门
 //
 // 注意，部门的最大层级为15层；部门总数不能超过3万个；每个部门下的节点不能超过3万个。
 //
