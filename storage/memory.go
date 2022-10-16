@@ -17,10 +17,7 @@ type MemoryStorage struct {
 }
 
 func NewMemoryStorage() *MemoryStorage {
-	ms := MemoryStorage{}
-	ms.data = map[string]storageData{}
-	ms.mutex = &sync.Mutex{}
-	return &ms
+	return &MemoryStorage{data: map[string]storageData{}, mutex: &sync.Mutex{}}
 }
 
 func (s MemoryStorage) Get(ctx context.Context, key string) string {
@@ -35,20 +32,18 @@ func (s MemoryStorage) Get(ctx context.Context, key string) string {
 }
 
 func (s MemoryStorage) Set(ctx context.Context, key string, val string, ttl time.Duration) error {
-	now := time.Now()
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	s.data[key] = storageData{value: val, expireIn: now.Add(ttl)}
+	s.data[key] = storageData{value: val, expireIn: time.Now().Add(ttl)}
 	return nil
 }
 
 func (s MemoryStorage) HasExpired(ctx context.Context, key string) bool {
-	now := time.Now()
 	val, ok := s.data[key]
 	if !ok {
 		return true
 	}
-	if val.expireIn.Sub(now) <= 0 {
+	if val.expireIn.Sub(time.Now()) <= 0 {
 		return true
 	}
 	return false
