@@ -132,12 +132,11 @@ func (client *WechatClient) GetAccessToken(ctx context.Context) (string, error) 
 	val := client.Storage.Get(ctx, storageKey)
 
 	if val == "" {
-		client.Log.Info("The access token is expired, try to get a new access token")
+		client.Log.Info(ctx, "The access token is expired, try to get a new access token")
 
 		err := client.FetchAccessToken(ctx)
 		if err != nil {
-			client.Log.Error(
-				fmt.Sprintf("An error has occurred during getting access token，Error: %s\n", err.Error()))
+			client.Log.Error(ctx, fmt.Sprintf("An error has occurred during getting access token，Error: %s\n", err.Error()))
 			return "", err
 		}
 		val = client.Storage.Get(ctx, storageKey)
@@ -192,12 +191,12 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 		if client.ExpiresIn == 0 || client.ExpiresIn > time.Second*7200 {
 			client.Mutex.Lock()
 			defer client.Mutex.Unlock()
-			client.Log.Info(fmt.Sprintf("Old expiresIn is't valid, set new expiresIn = %ds", accessToken.ExporesIn))
+			client.Log.Info(ctx, fmt.Sprintf("Old expiresIn is't valid, set new expiresIn = %ds", accessToken.ExporesIn))
 			client.ExpiresIn = time.Duration(accessToken.ExporesIn) * 1000 * 1000 * 1000
 		}
 
 		key := client.GetAccessTokenStorageKey()
-		client.Log.Info("Set new access token to storage.")
+		client.Log.Info(ctx, "Set new access token to storage.")
 		err = client.Storage.Set(ctx, key, accessToken.AccessToken, client.ExpiresIn)
 		if err != nil {
 			return err
@@ -260,7 +259,7 @@ func (client WechatClient) respHandler(ctx context.Context, resp *http.Response,
 	if err != nil {
 		return err
 	}
-	client.Log.Debug(fmt.Sprintf("ResponseHandler response message: %s", errmsg))
+	client.Log.Debug(ctx, fmt.Sprintf("ResponseHandler response message: %s", errmsg))
 	if errmsg.GetErrCode() != 0 {
 		return errmsg
 	}
@@ -271,10 +270,10 @@ func (client WechatClient) respHandler(ctx context.Context, resp *http.Response,
 
 	err = json.Unmarshal(content, out)
 	if err != nil {
-		client.Log.Debug("Get response content: failed!")
+		client.Log.Debug(ctx, "Get response content: failed!")
 		return err
 	}
-	client.Log.Debug("Get response content: successful!")
+	client.Log.Debug(ctx, "Get response content: successful!")
 	return nil
 }
 
