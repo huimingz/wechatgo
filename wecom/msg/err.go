@@ -5,7 +5,7 @@ import (
 )
 
 type MsgError struct {
-	wechatgo.WXMsgError
+	wechatgo.WechatMessageError
 	InvalidUser  string `json:"invaliduser"`
 	InvalidParty string `json:"invalidparty"`
 	InvalidTag   string `json:"invalidtag"`

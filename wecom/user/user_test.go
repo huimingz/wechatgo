@@ -86,7 +86,7 @@ func TestWechatUser_DeleteUser(t *testing.T) {
 
 	err = wechatUser.DeleteUser(context.Background(), "example_xxx")
 	if err != nil {
-		if v, ok := err.(*wechatgo.WXMsgError); ok {
+		if v, ok := err.(*wechatgo.WechatMessageError); ok {
 			if v.ErrCode != 60111 {
 				t.Errorf("WechatUser.DeleteUser() error = '错误代码[%d] != 60111'", v.ErrCode)
 			}

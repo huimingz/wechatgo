@@ -17,12 +17,12 @@ func TestWechatAppManage_CreateApp(t *testing.T) {
 	app.Description = "some comment for app"
 	err := wechatAppManage.CreateApp(context.Background(), app)
 	if err != nil {
-		if v, ok := err.(*wechatgo.WXMsgError); ok {
+		if v, ok := err.(*wechatgo.WechatMessageError); ok {
 			if v.ErrCode != 301002 {
 				t.Error("WechatAppManage.CreateApp() error = 'error code != 301002'")
 			}
 		} else {
-			t.Error("WechatAppManage.CreateApp() error = 'error isn't `*enterprise.WXMsgError` type'")
+			t.Error("WechatAppManage.CreateApp() error = 'error isn't `*enterprise.WechatMessageError` type'")
 		}
 	}
 }

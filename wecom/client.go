@@ -240,7 +240,7 @@ func (client WechatClient) valuesTokenCompletion(ctx context.Context, values url
 	return values, nil
 }
 
-func (client WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WxMsgInterface, out interface{}) error {
+func (client WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
@@ -253,7 +253,7 @@ func (client WechatClient) respHandler(ctx context.Context, resp *http.Response,
 	}
 
 	if errmsg == nil {
-		errmsg = &wechatgo.WXMsgError{}
+		errmsg = &wechatgo.WechatMessageError{}
 	}
 	err = json.Unmarshal(content, errmsg)
 	if err != nil {
@@ -277,7 +277,7 @@ func (client WechatClient) respHandler(ctx context.Context, resp *http.Response,
 	return nil
 }
 
-func (client *WechatClient) Get(ctx context.Context, url_ string, values url.Values, errmsg wechatgo.WxMsgInterface, out interface{}) error {
+func (client *WechatClient) Get(ctx context.Context, url_ string, values url.Values, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
@@ -319,7 +319,7 @@ func (client *WechatClient) RawGet(ctx context.Context, url_ string, values url.
 	return resp, err
 }
 
-func (client *WechatClient) AdvPost(ctx context.Context, url_, contentType string, values url.Values, data interface{}, errmsg wechatgo.WxMsgInterface, out interface{}) error {
+func (client *WechatClient) AdvPost(ctx context.Context, url_, contentType string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
@@ -354,6 +354,6 @@ func (client *WechatClient) AdvPost(ctx context.Context, url_, contentType strin
 	return client.respHandler(ctx, resp, errmsg, out)
 }
 
-func (client WechatClient) Post(ctx context.Context, url_ string, values url.Values, data interface{}, errmsg wechatgo.WxMsgInterface, out interface{}) error {
+func (client WechatClient) Post(ctx context.Context, url_ string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	return client.AdvPost(ctx, url_, "application/json", values, data, errmsg, out)
 }

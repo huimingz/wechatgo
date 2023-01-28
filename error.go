@@ -4,29 +4,29 @@ package wechatgo
 
 import "fmt"
 
-type WxMsgInterface interface {
+type WechatMsgInterface interface {
 	GetErrCode() int
 	GetErrMsg() string
 	Error() string
 }
 
-type WXMsgError struct {
+type WechatMessageError struct {
 	ErrCode int    `json:"errcode"` // 响应错误状态码
 	ErrMsg  string `json:"errmsg"`  // 响应错误消息内容
 }
 
-func (err WXMsgError) Error() string {
+func (err WechatMessageError) Error() string {
 	return fmt.Sprintf("errcode=%d, errmsg='%s'", err.ErrCode, err.ErrMsg)
 }
 
-func (err WXMsgError) GetErrCode() int {
+func (err WechatMessageError) GetErrCode() int {
 	return err.ErrCode
 }
 
-func (err WXMsgError) GetErrMsg() string {
+func (err WechatMessageError) GetErrMsg() string {
 	return err.ErrMsg
 }
 
-func NewWXMsgError(code int, msg string) *WXMsgError {
-	return &WXMsgError{ErrCode: code, ErrMsg: msg}
+func NewWXMsgError(code int, msg string) *WechatMessageError {
+	return &WechatMessageError{ErrCode: code, ErrMsg: msg}
 }

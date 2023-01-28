@@ -70,7 +70,7 @@ func TestWechatDept_GetUserDetailList(t *testing.T) {
 func TestWechatDept_Create(t *testing.T) {
 	id, err := wechatDept.Create(context.Background(), "testdata", 1, 0, 18)
 	if err != nil {
-		if v, ok := err.(*wechatgo.WXMsgError); ok {
+		if v, ok := err.(*wechatgo.WechatMessageError); ok {
 			if v.ErrCode != 60008 {
 				t.Errorf("WechatDept.Create() error = '%s'", err)
 			}

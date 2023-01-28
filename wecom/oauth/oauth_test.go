@@ -32,7 +32,7 @@ func TestWechatOAuth_GetUserInfo(t *testing.T) {
 	code := "KyUxwLmpx5coUKU_BiPA2ICBdlDYZQtcPmeyocC_QUY"
 	_, err := wechatOauth.GetUserInfo(context.Background(), code)
 	if err != nil {
-		if v, ok := err.(*wechatgo.WXMsgError); ok {
+		if v, ok := err.(*wechatgo.WechatMessageError); ok {
 			if v.ErrCode != 40029 {
 				t.Errorf("WechatOauth.GetUserInfo() error = 'error code != 40029, current code = %d'", v.ErrCode)
 			}
