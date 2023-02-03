@@ -2,6 +2,7 @@ package msg
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
@@ -91,8 +92,10 @@ func TestWechatMsg_SendMarkdown(t *testing.T) {
 	}
 }
 
-func init() {
+func TestMain(t *testing.M) {
 	var conf = testdata.TestConf
 	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
 	wechatMsg = NewWechatMsg(wechatClient)
+
+	os.Exit(t.Run())
 }
