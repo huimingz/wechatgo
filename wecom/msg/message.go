@@ -370,7 +370,7 @@ func (w WechatMsg) SendMiniProgramNotice(ctx context.Context, toUser []string, t
 	return w.send(ctx, data)
 }
 
-// 任务卡片消息
+// SendTaskCard 任务卡片消息
 //
 // 仅企业微信2.8.2及以上版本支持
 //
