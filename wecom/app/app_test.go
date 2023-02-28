@@ -4,12 +4,36 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/huimingz/wechatgo"
 	"github.com/huimingz/wechatgo/testdata"
 	"github.com/huimingz/wechatgo/wecom"
 )
 
 var wechatAppManage *WechatAppManage
+
+type AppTestSuite struct {
+	suite.Suite
+}
+
+func (s *AppTestSuite) SetupSuite() {
+	var conf = testdata.TestConf
+	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
+	wechatAppManage = NewWechatAppManage(wechatClient)
+}
+
+func (s *AppTestSuite) TestCreateApp() {
+	app := AppInfo{}
+	app.AgentId = 1000321
+	app.Description = "some comment for app"
+	err := wechatAppManage.CreateApp(context.Background(), app)
+	s.NoError(err)
+
+	v, ok := err.(*wechatgo.WechatMessageError)
+	s.True(ok)
+	s.NotEqual(301002, v.ErrCode, "error code != 301002")
+}
 
 func TestWechatAppManage_CreateApp(t *testing.T) {
 	app := AppInfo{}
@@ -87,4 +111,8 @@ func init() {
 	var conf = testdata.TestConf
 	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
 	wechatAppManage = NewWechatAppManage(wechatClient)
+}
+
+func TestAppSuite(t *testing.T) {
+	suite.Run(t, new(AppTestSuite))
 }
