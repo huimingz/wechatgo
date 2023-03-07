@@ -157,12 +157,12 @@ func (w WechatDept) Update(ctx context.Context, deptId, parentId, order int, nam
 	data := struct {
 		Id       int    `json:"id"`
 		Name     string `json:"name,omitempty"`
-		Parentid int    `json:"parentid,omitempty"`
+		ParentId int    `json:"parentid,omitempty"`
 		Order    int    `json:"order,omitempty"`
 	}{
 		Id:       deptId,
 		Name:     name,
-		Parentid: parentId,
+		ParentId: parentId,
 		Order:    order,
 	}
 
