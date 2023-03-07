@@ -42,66 +42,41 @@ func (s *AppTestSuite) TestShouldGetAllApp() {
 	s.NotEmpty(appIntro)
 }
 
-func TestWechatAppManage_GetAllApp(t *testing.T) {
-	appIntro, err := wechatAppManage.GetAllApp(context.Background())
-	if err != nil {
-		t.Errorf("WechatAppManage.GetAllApp() error = '%s'", err)
-	}
-	if len(appIntro) == 0 {
-		t.Error("WechatAppManage.GetAllApp() error = '返回了空内容'")
-	}
-}
-
-func TestWechatAppManage_GetApp(t *testing.T) {
+func (s *AppTestSuite) TestShouldGetApp() {
 	appDetail, err := wechatAppManage.GetApp(context.Background(), testdata.TestConf.AgentId)
-	if err != nil {
-		t.Errorf("WechatAppManage.GetApp(%d) error = '%s'", testdata.TestConf.AgentId, err)
-	}
-	if appDetail.Name == "" {
-		t.Error("WechatAppManage.GetAllApp() error = '返回的应用详情为空内容'")
-	}
+
+	s.NoError(err)
+	s.NotEmpty(appDetail.Name)
 }
 
-func TestWechatAppManage_CreateMenu(t *testing.T) {
+func (s *AppTestSuite) TestShouldCreateMenu() {
 	menu := Menu{}
-	button1 := Button{
+	button := Button{
 		Type:      "view",
 		Name:      "golang",
 		Url:       "https://www.golang.org",
 		Key:       "",
 		SubButton: nil,
 	}
-	menu.Button = append(menu.Button, button1)
+	menu.Button = append(menu.Button, button)
+
 	err := wechatAppManage.CreateMenu(context.Background(), menu, 0)
-	if err != nil {
-		t.Errorf("WechatAppManage.CreateMenu() error = '%s'", err)
-	}
+
+	s.NoError(err)
 }
 
-func TestWechatAppManage_GetMenu(t *testing.T) {
+func (s *AppTestSuite) TestShouldGetMenu() {
 	menu, err := wechatAppManage.GetMenu(context.Background(), testdata.TestConf.AgentId)
-	if err != nil {
-		t.Errorf("WechatAppManage.GetMenu(%d) error = '%s'", testdata.TestConf.AgentId, err)
-	}
-	if len(menu.Button) == 0 {
-		t.Errorf("WechatAppManage.GetMenu(%d) error = '返回的菜单按钮为空'", testdata.TestConf.AgentId)
-	}
-	if menu.Button[0].Name != "golang" {
-		t.Errorf("WechatAppManage.GetMenu(%d) error = 'Button.Name != golang'", testdata.TestConf.AgentId)
-	}
+
+	s.NoError(err)
+	s.NotEmpty(menu.Button)
+	s.Equal("golang", menu.Button[0].Name)
 }
 
-func TestWechatAppManage_DeleteMenu(t *testing.T) {
+func (s *AppTestSuite) TestShouldDeleteMenu() {
 	err := wechatAppManage.DeleteMenu(context.Background(), 0)
-	if err != nil {
-		t.Errorf("WechatAppManage.DeleteMenu() error = '%s'", err)
-	}
-}
 
-func init() {
-	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
-	wechatAppManage = NewWechatAppManage(wechatClient)
+	s.NoError(err)
 }
 
 func TestAppSuite(t *testing.T) {
