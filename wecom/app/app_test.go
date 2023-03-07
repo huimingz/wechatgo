@@ -35,20 +35,11 @@ func (s *AppTestSuite) TestCreateApp() {
 	s.NotEqual(301002, v.ErrCode, "error code != 301002")
 }
 
-func TestWechatAppManage_CreateApp(t *testing.T) {
-	app := AppInfo{}
-	app.AgentId = 1000321
-	app.Description = "some comment for app"
-	err := wechatAppManage.CreateApp(context.Background(), app)
-	if err != nil {
-		if v, ok := err.(*wechatgo.WechatMessageError); ok {
-			if v.ErrCode != 301002 {
-				t.Error("WechatAppManage.CreateApp() error = 'error code != 301002'")
-			}
-		} else {
-			t.Error("WechatAppManage.CreateApp() error = 'error isn't `*enterprise.WechatMessageError` type'")
-		}
-	}
+func (s *AppTestSuite) TestShouldGetAllApp() {
+	appIntro, err := wechatAppManage.GetAllApp(context.Background())
+
+	s.NoError(err)
+	s.NotEmpty(appIntro)
 }
 
 func TestWechatAppManage_GetAllApp(t *testing.T) {
