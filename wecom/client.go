@@ -29,34 +29,34 @@ type WechatClient struct {
 	CorpId      string          // 企业ID
 	CorpSecret  string          // 应用的凭证密钥
 	AgentId     int             // agent id
-	HttpClient  *http.Client    // http.Client 对象
+	httpClient  *http.Client    // http.Client 对象
 	accessToken string          // 凭证
-	ExpiresIn   time.Duration   // 凭证的有效时间
+	expiresIn   time.Duration   // 凭证的有效时间
 	lastFresh   time.Time       // 最后一次token刷新时间
-	Mutex       *sync.Mutex     // 互斥锁
-	BaseUrl     string          // 微信服务器Url
-	Storage     storage.Storage // token存储器
+	mutex       *sync.Mutex     // 互斥锁
+	baseUrl     string          // 微信服务器Url
+	storage     storage.Storage // token存储器
 	storageKey  string          // token的key值
-	Log         wechatgo.Logger // 日志
+	log         wechatgo.Logger // 日志
 }
 
 type WechatClientOption func(client *WechatClient)
 
 func WechatClientWithLogger(logger wechatgo.Logger) WechatClientOption {
 	return func(client *WechatClient) {
-		client.Log = logger
+		client.log = logger
 	}
 }
 
 func WechatClientWithStorage(storage storage.Storage) WechatClientOption {
 	return func(client *WechatClient) {
-		client.Storage = storage
+		client.storage = storage
 	}
 }
 
 func WechatClientWithHTTPClient(httpClient *http.Client) WechatClientOption {
 	return func(client *WechatClient) {
-		client.HttpClient = httpClient
+		client.httpClient = httpClient
 	}
 }
 
@@ -66,13 +66,13 @@ func WechatClientWithExpiresIn(sec time.Duration) WechatClientOption {
 	}
 
 	return func(client *WechatClient) {
-		client.ExpiresIn = sec
+		client.expiresIn = sec
 	}
 }
 
 func WechatClientWithMutex(lock *sync.Mutex) WechatClientOption {
 	return func(client *WechatClient) {
-		client.Mutex = lock
+		client.mutex = lock
 	}
 }
 
@@ -81,27 +81,27 @@ func NewWechatClient(corpid, corpSecret string, agentId int, options ...WechatCl
 	client.CorpId = corpid
 	client.CorpSecret = corpSecret
 	client.AgentId = agentId
-	client.BaseUrl = _BASE_URL
+	client.baseUrl = _BASE_URL
 
 	for _, opt := range options {
 		opt(&client)
 	}
 
-	if client.HttpClient == nil {
-		client.HttpClient = &http.Client{}
+	if client.httpClient == nil {
+		client.httpClient = &http.Client{}
 	}
-	if client.ExpiresIn == 0 {
-		client.ExpiresIn = time.Second * 7200
+	if client.expiresIn == 0 {
+		client.expiresIn = time.Second * 7200
 	}
-	if client.Mutex == nil {
-		client.Mutex = &sync.Mutex{}
+	if client.mutex == nil {
+		client.mutex = &sync.Mutex{}
 	}
-	if client.Storage == nil {
-		client.Storage = storage.NewMemoryStorage()
+	if client.storage == nil {
+		client.storage = storage.NewMemoryStorage()
 	}
 
-	if client.Log == nil {
-		client.Log = wechatgo.DefaultLogger()
+	if client.log == nil {
+		client.log = wechatgo.DefaultLogger()
 	}
 
 	return &client
@@ -118,7 +118,7 @@ func (client *WechatClient) GetAccessTokenStorageKey() string {
 // IsExpired 检查access token是否过期
 func (client *WechatClient) IsExpired(ctx context.Context) bool {
 	storageKey := client.GetAccessTokenStorageKey()
-	if client.Storage.HasExpired(ctx, storageKey) {
+	if client.storage.HasExpired(ctx, storageKey) {
 		return true
 	}
 	return false
@@ -129,17 +129,17 @@ func (client *WechatClient) IsExpired(ctx context.Context) bool {
 // 当access_token过期或者为空字符串时，会重新获取一次access_token
 func (client *WechatClient) GetAccessToken(ctx context.Context) (string, error) {
 	storageKey := client.GetAccessTokenStorageKey()
-	val := client.Storage.Get(ctx, storageKey)
+	val := client.storage.Get(ctx, storageKey)
 
 	if val == "" {
-		client.Log.Info(ctx, "The access token is expired, try to get a new access token")
+		client.log.Info(ctx, "The access token is expired, try to get a new access token")
 
 		err := client.FetchAccessToken(ctx)
 		if err != nil {
-			client.Log.Error(ctx, fmt.Sprintf("An error has occurred during getting access token，Error: %s\n", err.Error()))
+			client.log.Error(ctx, fmt.Sprintf("An error has occurred during getting access token，Error: %s\n", err.Error()))
 			return "", err
 		}
-		val = client.Storage.Get(ctx, storageKey)
+		val = client.storage.Get(ctx, storageKey)
 	}
 	return val, nil
 }
@@ -158,7 +158,7 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 	}
 
 	request = request.WithContext(ctx)
-	resp, err := client.HttpClient.Do(request)
+	resp, err := client.httpClient.Do(request)
 	if err != nil {
 		return err
 	}
@@ -175,7 +175,7 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 		ErrCode     int    `json:"errcode"`
 		ErrMsg      string `json:"errmsg"`
 		AccessToken string `json:"access_token"`
-		ExporesIn   uint64 `json:"expires_in"`
+		ExpiresIn   uint64 `json:"expires_in"`
 	}{}
 	// accessToken := RespAccessToken{}
 	err = json.Unmarshal(content, &accessToken)
@@ -185,16 +185,16 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 
 	// 检查过期时间是否有效，无效则重新设置
 	if accessToken.ErrCode == 0 && accessToken.AccessToken != "" {
-		if client.ExpiresIn == 0 || client.ExpiresIn > time.Second*7200 {
-			client.Mutex.Lock()
-			defer client.Mutex.Unlock()
-			client.Log.Info(ctx, fmt.Sprintf("Old expiresIn is't valid, set new expiresIn = %ds", accessToken.ExporesIn))
-			client.ExpiresIn = time.Duration(accessToken.ExporesIn) * 1000 * 1000 * 1000
+		if client.expiresIn == 0 || client.expiresIn > time.Second*7200 {
+			client.mutex.Lock()
+			defer client.mutex.Unlock()
+			client.log.Info(ctx, fmt.Sprintf("Old expiresIn is't valid, set new expiresIn = %ds", accessToken.ExpiresIn))
+			client.expiresIn = time.Duration(accessToken.ExpiresIn) * 1000 * 1000 * 1000
 		}
 
 		key := client.GetAccessTokenStorageKey()
-		client.Log.Info(ctx, "Set new access token to storage.")
-		err = client.Storage.Set(ctx, key, accessToken.AccessToken, client.ExpiresIn)
+		client.log.Info(ctx, "Set new access token to storage.")
+		err = client.storage.Set(ctx, key, accessToken.AccessToken, client.expiresIn)
 		if err != nil {
 			return err
 		}
@@ -209,13 +209,13 @@ func (client *WechatClient) resourceURL(path string, query url.Values) string {
 	re, _ := regexp.Compile("^https?://.*")
 
 	if !re.MatchString(path) {
-		if strings.HasSuffix(client.BaseUrl, "/") {
-			client.Mutex.Lock()
-			defer client.Mutex.Unlock()
-			client.BaseUrl = strings.TrimRight(client.BaseUrl, "/")
+		if strings.HasSuffix(client.baseUrl, "/") {
+			client.mutex.Lock()
+			defer client.mutex.Unlock()
+			client.baseUrl = strings.TrimRight(client.baseUrl, "/")
 		}
 		path = strings.TrimLeft(path, "/")
-		uri = client.BaseUrl + "/" + path
+		uri = client.baseUrl + "/" + path
 	} else {
 		uri = path
 	}
@@ -263,7 +263,7 @@ func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response
 	if err != nil {
 		return err
 	}
-	client.Log.Debug(ctx, fmt.Sprintf("ResponseHandler response message: %s", errmsg))
+	client.log.Debug(ctx, fmt.Sprintf("ResponseHandler response message: %s", errmsg))
 	if errmsg.GetErrCode() != 0 {
 		return errmsg
 	}
@@ -274,10 +274,10 @@ func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response
 
 	err = json.Unmarshal(content, out)
 	if err != nil {
-		client.Log.Debug(ctx, "Get response content: failed!")
+		client.log.Debug(ctx, "Get response content: failed!")
 		return err
 	}
-	client.Log.Debug(ctx, "Get response content: successful!")
+	client.log.Debug(ctx, "Get response content: successful!")
 	return nil
 }
 
@@ -293,7 +293,7 @@ func (client *WechatClient) Get(ctx context.Context, path string, values url.Val
 	}
 
 	request = request.WithContext(ctx)
-	resp, err := client.HttpClient.Do(request)
+	resp, err := client.httpClient.Do(request)
 	if err != nil {
 		return err
 	}
@@ -313,7 +313,7 @@ func (client *WechatClient) RawGet(ctx context.Context, path string, values url.
 	}
 
 	request = request.WithContext(ctx)
-	resp, err = client.HttpClient.Do(request)
+	resp, err = client.httpClient.Do(request)
 	return resp, err
 }
 
@@ -341,7 +341,7 @@ func (client *WechatClient) AdvPost(ctx context.Context, path, contentType strin
 
 	request = request.WithContext(ctx)
 	request.Header.Add("Content-Type", contentType)
-	resp, err := client.HttpClient.Do(request)
+	resp, err := client.httpClient.Do(request)
 	if err != nil {
 		return err
 	}
