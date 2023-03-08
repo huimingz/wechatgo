@@ -13,24 +13,24 @@ type Logger interface {
 	Error(cxt context.Context, args ...interface{})
 }
 
-type LoggerExample struct{}
+type defaultLogger struct{}
 
-func (l LoggerExample) Debug(ctx context.Context, args ...interface{}) {
+func (l defaultLogger) Debug(ctx context.Context, args ...interface{}) {
 	log.Print(args...)
 }
 
-func (l LoggerExample) Info(ctx context.Context, args ...interface{}) {
+func (l defaultLogger) Info(ctx context.Context, args ...interface{}) {
 	log.Print(args...)
 }
 
-func (l LoggerExample) Warn(ctx context.Context, args ...interface{}) {
+func (l defaultLogger) Warn(ctx context.Context, args ...interface{}) {
 	log.Print(args...)
 }
 
-func (l LoggerExample) Error(cxt context.Context, args ...interface{}) {
+func (l defaultLogger) Error(cxt context.Context, args ...interface{}) {
 	log.Print(args...)
 }
 
 func DefaultLogger() Logger {
-	return LoggerExample{}
+	return defaultLogger{}
 }
