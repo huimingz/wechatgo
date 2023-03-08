@@ -108,7 +108,7 @@ func NewWechatClient(corpid, corpSecret string, agentId int, options ...WechatCl
 }
 
 // GetAccessTokenStorageKey 获取认证令牌缓存Key
-func (client WechatClient) GetAccessTokenStorageKey() string {
+func (client *WechatClient) GetAccessTokenStorageKey() string {
 	if client.storageKey == "" {
 		client.storageKey = "accesstoken_" + client.CorpSecret
 	}
@@ -152,7 +152,7 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 	values.Add("corpid", client.CorpId)
 	values.Add("corpsecret", client.CorpSecret)
 
-	request, err := http.NewRequest("GET", client.UrlCompletion("/cgi-bin/gettoken", values), nil)
+	request, err := http.NewRequest("GET", client.resourceURL("/cgi-bin/gettoken", values), nil)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 	return nil
 }
 
-func (client *WechatClient) UrlCompletion(path string, query url.Values) string {
+func (client *WechatClient) resourceURL(path string, query url.Values) string {
 	var uri string
 	re, _ := regexp.Compile("^https?://.*")
 
@@ -226,7 +226,7 @@ func (client *WechatClient) UrlCompletion(path string, query url.Values) string 
 	return uri
 }
 
-func (client WechatClient) valuesTokenCompletion(ctx context.Context, values url.Values) (url.Values, error) {
+func (client *WechatClient) valuesTokenCompletion(ctx context.Context, values url.Values) (url.Values, error) {
 	if values == nil {
 		values = url.Values{}
 	}
@@ -244,7 +244,7 @@ func (client WechatClient) valuesTokenCompletion(ctx context.Context, values url
 	return values, nil
 }
 
-func (client WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
+func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
@@ -287,7 +287,7 @@ func (client *WechatClient) Get(ctx context.Context, path string, values url.Val
 		return err
 	}
 
-	request, err := http.NewRequest("GET", client.UrlCompletion(path, values), nil)
+	request, err := http.NewRequest("GET", client.resourceURL(path, values), nil)
 	if err != nil {
 		return err
 	}
@@ -307,7 +307,7 @@ func (client *WechatClient) RawGet(ctx context.Context, path string, values url.
 		return nil, err
 	}
 
-	request, err := http.NewRequest("GET", client.UrlCompletion(path, values), nil)
+	request, err := http.NewRequest("GET", client.resourceURL(path, values), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +334,7 @@ func (client *WechatClient) AdvPost(ctx context.Context, path, contentType strin
 		body = bytes.NewReader(jsonData)
 	}
 
-	request, err := http.NewRequest("POST", client.UrlCompletion(path, values), body)
+	request, err := http.NewRequest("POST", client.resourceURL(path, values), body)
 	if err != nil {
 		return err
 	}
@@ -349,6 +349,6 @@ func (client *WechatClient) AdvPost(ctx context.Context, path, contentType strin
 	return client.respHandler(ctx, resp, errmsg, out)
 }
 
-func (client WechatClient) Post(ctx context.Context, url_ string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
+func (client *WechatClient) Post(ctx context.Context, url_ string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	return client.AdvPost(ctx, url_, "application/json", values, data, errmsg, out)
 }
