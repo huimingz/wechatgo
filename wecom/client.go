@@ -204,6 +204,17 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 	return nil
 }
 
+// GetDomainIpList 获取微信服务器IP地址
+func (client *WechatClient) GetDomainIpList(ctx context.Context) ([]string, error) {
+	uri := "/cgi-bin/get_api_domain_ip"
+	ipList := struct {
+		IpList []string `json:"ip_list"`
+	}{}
+
+	err := client.Get(ctx, uri, nil, nil, &ipList)
+	return ipList.IpList, err
+}
+
 func (client *WechatClient) resourceURL(path string, query url.Values) string {
 	var uri string
 	re, _ := regexp.Compile("^https?://.*")
