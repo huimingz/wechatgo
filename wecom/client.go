@@ -255,7 +255,7 @@ func (client *WechatClient) valuesTokenCompletion(ctx context.Context, values ur
 	return values, nil
 }
 
-func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
+func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WechatMsgInterface, out any) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
@@ -267,24 +267,19 @@ func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response
 		return err
 	}
 
-	if errmsg == nil {
-		errmsg = &wechatgo.WechatMessageError{}
-	}
-	err = json.Unmarshal(content, errmsg)
-	if err != nil {
+	return client.handleResult(ctx, errmsg, content, out)
+}
+
+func (client *WechatClient) handleResult(ctx context.Context, errmsg wechatgo.WechatMsgInterface, content []byte, out any) error {
+	if err := client.verifyResult(ctx, errmsg, content); err != nil {
 		return err
-	}
-	client.log.Debug(ctx, fmt.Sprintf("ResponseHandler response message: %s", errmsg))
-	if errmsg.GetErrCode() != 0 {
-		return errmsg
 	}
 
 	if out == nil {
 		return nil
 	}
 
-	err = json.Unmarshal(content, out)
-	if err != nil {
+	if err := json.Unmarshal(content, out); err != nil {
 		client.log.Debug(ctx, "Get response content: failed!")
 		return err
 	}
@@ -292,7 +287,23 @@ func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response
 	return nil
 }
 
-func (client *WechatClient) Get(ctx context.Context, path string, values url.Values, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
+func (client *WechatClient) verifyResult(ctx context.Context, errmsg wechatgo.WechatMsgInterface, content []byte) error {
+	if errmsg == nil {
+		errmsg = &wechatgo.WechatMessageError{}
+	}
+
+	if err := json.Unmarshal(content, errmsg); err != nil {
+		return err
+	}
+
+	client.log.Debug(ctx, fmt.Sprintf("ResponseHandler response message: %s", errmsg))
+	if errmsg.GetErrCode() != 0 {
+		return errmsg
+	}
+	return nil
+}
+
+func (client *WechatClient) Get(ctx context.Context, path string, values url.Values, errmsg wechatgo.WechatMsgInterface, out any) error {
 	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
