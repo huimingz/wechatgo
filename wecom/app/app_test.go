@@ -2,8 +2,11 @@ package app
 
 import (
 	"context"
+	"net/http"
+	"os"
 	"testing"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/huimingz/wechatgo"
@@ -11,23 +14,35 @@ import (
 	"github.com/huimingz/wechatgo/wecom"
 )
 
-var wechatAppManage *WechatAppManage
-
 type AppTestSuite struct {
 	suite.Suite
+	wechatAppManage *WechatAppManage
+	httpClient      *http.Client
 }
 
 func (s *AppTestSuite) SetupSuite() {
+	s.httpClient = &http.Client{}
+	httpmock.ActivateNonDefault(s.httpClient)
+
+	content, err := os.ReadFile("fixtures/response_cgi-bin_gettoken.json")
+	s.NoError(err)
+	responder := httpmock.NewStringResponder(http.StatusOK, string(content))
+	httpmock.RegisterResponder("GET", wecom.BASE_URL+"/cgi-bin/gettoken", responder)
+
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
-	wechatAppManage = NewWechatAppManage(wechatClient)
+	wechatClient := wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId, wecom.WechatClientWithHTTPClient(s.httpClient))
+	s.wechatAppManage = NewWechatAppManage(wechatClient)
+}
+
+func (s *AppTestSuite) TearDownSuite() {
+	httpmock.DeactivateAndReset()
 }
 
 func (s *AppTestSuite) TestCreateApp() {
 	app := AppInfo{}
 	app.AgentId = 1000321
 	app.Description = "some comment for app"
-	err := wechatAppManage.CreateApp(context.Background(), app)
+	err := s.wechatAppManage.CreateApp(context.Background(), app)
 	s.NoError(err)
 
 	v, ok := err.(*wechatgo.WechatMessageError)
@@ -36,14 +51,22 @@ func (s *AppTestSuite) TestCreateApp() {
 }
 
 func (s *AppTestSuite) TestShouldGetAllApp() {
-	appIntro, err := wechatAppManage.GetAllApp(context.Background())
+	appIntro, err := s.wechatAppManage.GetAllApp(context.Background())
 
 	s.NoError(err)
 	s.NotEmpty(appIntro)
 }
 
 func (s *AppTestSuite) TestShouldGetApp() {
-	appDetail, err := wechatAppManage.GetApp(context.Background(), testdata.TestConf.AgentId)
+	wd, err := os.Getwd()
+	s.NoError(err)
+	content, err := os.ReadFile(wd + "/fixtures/response_cgi-bin_agent_get.json")
+	s.NoError(err)
+
+	responder := httpmock.NewStringResponder(http.StatusOK, string(content))
+	httpmock.RegisterResponder("GET", wecom.BASE_URL+urlGetApp, responder)
+
+	appDetail, err := s.wechatAppManage.GetApp(context.Background(), testdata.TestConf.AgentId)
 
 	s.NoError(err)
 	s.NotEmpty(appDetail.Name)
@@ -60,13 +83,13 @@ func (s *AppTestSuite) TestShouldCreateMenu() {
 	}
 	menu.Button = append(menu.Button, button)
 
-	err := wechatAppManage.CreateMenu(context.Background(), menu, 0)
+	err := s.wechatAppManage.CreateMenu(context.Background(), menu, 0)
 
 	s.NoError(err)
 }
 
 func (s *AppTestSuite) TestShouldGetMenu() {
-	menu, err := wechatAppManage.GetMenu(context.Background(), testdata.TestConf.AgentId)
+	menu, err := s.wechatAppManage.GetMenu(context.Background(), testdata.TestConf.AgentId)
 
 	s.NoError(err)
 	s.NotEmpty(menu.Button)
@@ -74,7 +97,7 @@ func (s *AppTestSuite) TestShouldGetMenu() {
 }
 
 func (s *AppTestSuite) TestShouldDeleteMenu() {
-	err := wechatAppManage.DeleteMenu(context.Background(), 0)
+	err := s.wechatAppManage.DeleteMenu(context.Background(), 0)
 
 	s.NoError(err)
 }

@@ -23,7 +23,7 @@ import (
 	"github.com/huimingz/wechatgo/storage"
 )
 
-const _BASE_URL = "https://qyapi.weixin.qq.com"
+const BASE_URL = "https://qyapi.weixin.qq.com"
 
 type WechatClient struct {
 	CorpId      string          // 企业ID
@@ -81,7 +81,7 @@ func NewWechatClient(corpid, corpSecret string, agentId int, options ...WechatCl
 	client.CorpId = corpid
 	client.CorpSecret = corpSecret
 	client.AgentId = agentId
-	client.baseUrl = _BASE_URL
+	client.baseUrl = BASE_URL
 
 	for _, opt := range options {
 		opt(&client)
@@ -319,8 +319,7 @@ func (client *WechatClient) Get(ctx context.Context, path string, values url.Val
 	if err != nil {
 		return err
 	}
-	err = client.respHandler(ctx, resp, errmsg, out)
-	return err
+	return client.respHandler(ctx, resp, errmsg, out)
 }
 
 func (client *WechatClient) RawGet(ctx context.Context, path string, values url.Values) (resp *http.Response, err error) {
