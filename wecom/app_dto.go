@@ -1,4 +1,4 @@
-package app
+package wecom
 
 type UserInfo struct {
 	UserId string `json:"userid"` // 用户id

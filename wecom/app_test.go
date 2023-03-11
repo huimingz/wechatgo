@@ -1,4 +1,4 @@
-package app
+package wecom
 
 import (
 	"context"
@@ -11,26 +11,47 @@ import (
 
 	"github.com/huimingz/wechatgo"
 	"github.com/huimingz/wechatgo/testdata"
-	"github.com/huimingz/wechatgo/wecom"
 )
 
-type AppTestSuite struct {
+var httpClient = &http.Client{}
+
+type TestSuite struct {
 	suite.Suite
+}
+
+func (s *TestSuite) SetupSuite() {
+	httpmock.ActivateNonDefault(httpClient)
+}
+
+func (s *TestSuite) TearDownSuite() {
+	httpmock.DeactivateAndReset()
+}
+
+func (s *TestSuite) BeforeTest(suiteName, testName string) {
+	httpmock.Reset()
+
+	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_cgi-bin_gettoken.json"))
+	httpmock.RegisterResponder("GET", BASE_URL+"/cgi-bin/gettoken", responder)
+}
+
+func (s *TestSuite) readFixture(filename string) string {
+	content, err := os.ReadFile("fixtures/" + filename)
+	s.NoError(err)
+
+	return string(content)
+}
+
+type AppTestSuite struct {
+	TestSuite
 	wechatAppManage *WechatAppManage
 	httpClient      *http.Client
 }
 
 func (s *AppTestSuite) SetupSuite() {
-	s.httpClient = &http.Client{}
-	httpmock.ActivateNonDefault(s.httpClient)
-
-	content, err := os.ReadFile("fixtures/response_cgi-bin_gettoken.json")
-	s.NoError(err)
-	responder := httpmock.NewStringResponder(http.StatusOK, string(content))
-	httpmock.RegisterResponder("GET", wecom.BASE_URL+"/cgi-bin/gettoken", responder)
+	s.TestSuite.SetupSuite()
 
 	var conf = testdata.TestConf
-	wechatClient := wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId, wecom.WechatClientWithHTTPClient(s.httpClient))
+	wechatClient := NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(httpClient))
 	s.wechatAppManage = NewWechatAppManage(wechatClient)
 }
 
@@ -58,13 +79,8 @@ func (s *AppTestSuite) TestShouldGetAllApp() {
 }
 
 func (s *AppTestSuite) TestShouldGetApp() {
-	wd, err := os.Getwd()
-	s.NoError(err)
-	content, err := os.ReadFile(wd + "/fixtures/response_cgi-bin_agent_get.json")
-	s.NoError(err)
-
-	responder := httpmock.NewStringResponder(http.StatusOK, string(content))
-	httpmock.RegisterResponder("GET", wecom.BASE_URL+urlGetApp, responder)
+	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_cgi-bin_agent_get.json"))
+	httpmock.RegisterResponder("GET", BASE_URL+urlGetApp, responder)
 
 	appDetail, err := s.wechatAppManage.GetApp(context.Background(), testdata.TestConf.AgentId)
 

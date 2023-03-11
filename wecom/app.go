@@ -1,12 +1,10 @@
 // Package app 应用管理
-package app
+package wecom
 
 import (
 	"context"
 	"net/url"
 	"strconv"
-
-	"github.com/huimingz/wechatgo/wecom"
 )
 
 const (
@@ -19,10 +17,10 @@ const (
 )
 
 type WechatAppManage struct {
-	Client *wecom.WechatClient
+	Client *WechatClient
 }
 
-func NewWechatAppManage(client *wecom.WechatClient) *WechatAppManage {
+func NewWechatAppManage(client *WechatClient) *WechatAppManage {
 	return &WechatAppManage{client}
 }
 
