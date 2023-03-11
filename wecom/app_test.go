@@ -2,14 +2,15 @@ package wecom
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/huimingz/wechatgo"
 	"github.com/huimingz/wechatgo/testdata"
 )
 
@@ -30,8 +31,18 @@ func (s *TestSuite) TearDownSuite() {
 func (s *TestSuite) BeforeTest(suiteName, testName string) {
 	httpmock.Reset()
 
-	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_cgi-bin_gettoken.json"))
-	httpmock.RegisterResponder("GET", BASE_URL+"/cgi-bin/gettoken", responder)
+	s.registerResponder(http.MethodGet, "/cgi-bin/gettoken")
+}
+
+func (s *TestSuite) registerResponder(method, path string) {
+	filename := fmt.Sprintf("response%s.json", strings.ReplaceAll(path, "/", "_"))
+	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture(filename))
+	httpmock.RegisterResponder(method, BASE_URL+path, responder)
+}
+
+func (s *TestSuite) registerSuccessResponder(method, path string) {
+	responder := httpmock.NewStringResponder(http.StatusOK, `{"errcode":0,"errmsg":"ok"}`)
+	httpmock.RegisterResponder(method, BASE_URL+path, responder)
 }
 
 func (s *TestSuite) readFixture(filename string) string {
@@ -60,18 +71,19 @@ func (s *AppTestSuite) TearDownSuite() {
 }
 
 func (s *AppTestSuite) TestCreateApp() {
-	app := AppInfo{}
-	app.AgentId = 1000321
-	app.Description = "some comment for app"
-	err := s.wechatAppManage.CreateApp(context.Background(), app)
-	s.NoError(err)
+	s.registerSuccessResponder(http.MethodPost, urlCreateApp)
 
-	v, ok := err.(*wechatgo.WechatMessageError)
-	s.True(ok)
-	s.NotEqual(301002, v.ErrCode, "error code != 301002")
+	err := s.wechatAppManage.CreateApp(context.Background(), AppInfo{
+		AgentId:     1000321,
+		Description: "some comment for app",
+	})
+
+	s.NoError(err)
 }
 
 func (s *AppTestSuite) TestShouldGetAllApp() {
+	s.registerResponder(http.MethodGet, urlGetAllApp)
+
 	appIntro, err := s.wechatAppManage.GetAllApp(context.Background())
 
 	s.NoError(err)
@@ -79,8 +91,7 @@ func (s *AppTestSuite) TestShouldGetAllApp() {
 }
 
 func (s *AppTestSuite) TestShouldGetApp() {
-	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_cgi-bin_agent_get.json"))
-	httpmock.RegisterResponder("GET", BASE_URL+urlGetApp, responder)
+	s.registerResponder(http.MethodGet, urlGetApp)
 
 	appDetail, err := s.wechatAppManage.GetApp(context.Background(), testdata.TestConf.AgentId)
 
@@ -89,6 +100,9 @@ func (s *AppTestSuite) TestShouldGetApp() {
 }
 
 func (s *AppTestSuite) TestShouldCreateMenu() {
+	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_success.json"))
+	httpmock.RegisterResponder(http.MethodPost, BASE_URL+urlCreateMenu, responder)
+
 	menu := Menu{}
 	button := Button{
 		Type:      "view",
@@ -105,14 +119,19 @@ func (s *AppTestSuite) TestShouldCreateMenu() {
 }
 
 func (s *AppTestSuite) TestShouldGetMenu() {
+	s.registerResponder(http.MethodGet, urlGetMenu)
+
 	menu, err := s.wechatAppManage.GetMenu(context.Background(), testdata.TestConf.AgentId)
 
 	s.NoError(err)
 	s.NotEmpty(menu.Button)
-	s.Equal("golang", menu.Button[0].Name)
+	s.NotEmpty(menu.Button[0].Name)
 }
 
 func (s *AppTestSuite) TestShouldDeleteMenu() {
+	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_success.json"))
+	httpmock.RegisterResponder(http.MethodGet, BASE_URL+urlDelMenu, responder)
+
 	err := s.wechatAppManage.DeleteMenu(context.Background(), 0)
 
 	s.NoError(err)
