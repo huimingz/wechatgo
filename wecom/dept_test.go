@@ -1,35 +1,70 @@
-package dept
+package wecom
 
 import (
 	"context"
+	"net/http"
 	"testing"
 
-	"github.com/huimingz/wechatgo"
 	"github.com/huimingz/wechatgo/testdata"
-	"github.com/huimingz/wechatgo/wecom"
+	"github.com/stretchr/testify/suite"
 )
 
+type departmentTestSuite struct {
+	TestSuite
+	dept *WechatDept
+}
+
+func (s *departmentTestSuite) SetupSuite() {
+	s.TestSuite.SetupSuite()
+
+	conf := testdata.TestConf
+	s.dept = NewWechatDept(NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(s.httpClient)))
+}
+
+func (s *departmentTestSuite) TestShouldGetDepartment() {
+	s.registerResponder(http.MethodGet, urlGetDepartment)
+
+	dept, err := s.dept.GetDetail(context.Background(), 2)
+
+	s.NoError(err)
+	s.Equal(2, dept.Id)
+}
+
+func (s *departmentTestSuite) TestShouldGetDepartments() {
+	s.registerResponder(http.MethodGet, urlGetDepartments)
+
+	departments, err := s.dept.GetList(context.Background())
+
+	s.NoError(err)
+	s.NotEmpty(departments)
+}
+
+func (s *departmentTestSuite) TestShouldRemoveDepartment() {
+	s.registerSuccessResponder(http.MethodGet, urlRemoveDepartment)
+
+	err := s.dept.Delete(context.Background(), 1)
+
+	s.NoError(err)
+}
+
+func (s *departmentTestSuite) TestShouldCreateDepartment() {
+	s.registerResponder(http.MethodPost, urlCreateDepartment)
+
+	deptId, err := s.dept.Create(context.Background(), "RDGZ", 1, 1, 1)
+
+	s.NoError(err)
+	s.Equal(2, deptId)
+}
+
+func (s *departmentTestSuite) TestShouldUpdateDepartment() {
+	s.registerResponder(http.MethodPost, urlUpdateDepartment)
+
+	err := s.dept.Update(context.Background(), 2, 1, 1, "RDGZ")
+
+	s.NoError(err)
+}
+
 var wechatDept *WechatDept
-
-func TestWechatDept_Get(t *testing.T) {
-	info, err := wechatDept.Get(context.Background(), 1)
-	if err != nil {
-		t.Errorf("WechatDept.Get() error = '%s'", err)
-	}
-	if len(info) == 0 {
-		t.Error("WechatDept.Get() error = '返回指定部门内容为空'")
-	}
-}
-
-func TestWechatDept_GetList(t *testing.T) {
-	info, err := wechatDept.GetList(context.Background())
-	if err != nil {
-		t.Errorf("WechatDept.GetList() error = '%s'", err)
-	}
-	if len(info) == 0 {
-		t.Error("WechatDept.GetList() error = '返回指定部门内容为空'")
-	}
-}
 
 func TestWechatDept_GetUserList(t *testing.T) {
 	users, err := wechatDept.GetUserList(context.Background(), 1, false)
@@ -67,20 +102,6 @@ func TestWechatDept_GetUserDetailList(t *testing.T) {
 	}
 }
 
-func TestWechatDept_Create(t *testing.T) {
-	id, err := wechatDept.Create(context.Background(), "testdata", 1, 0, 18)
-	if err != nil {
-		if v, ok := err.(*wechatgo.WechatMessageError); ok {
-			if v.ErrCode != 60008 {
-				t.Errorf("WechatDept.Create() error = '%s'", err)
-			}
-		}
-	}
-	if id != 18 {
-		t.Errorf("WechatDept.Create() error = 'id[%d] != 18'", id)
-	}
-}
-
 func TestWechatDept_Update(t *testing.T) {
 	err := wechatDept.Update(context.Background(), 18, 0, 0, "test_test")
 	if err != nil {
@@ -96,15 +117,12 @@ func TestWechatDept_Update(t *testing.T) {
 	}
 }
 
-func TestWechatDept_Delete(t *testing.T) {
-	err := wechatDept.Delete(context.Background(), 18)
-	if err != nil {
-		t.Errorf("WechatDept.Delete() error = '%s'", err)
-	}
-}
-
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
+	var wechatClient = NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
 	wechatDept = NewWechatDept(wechatClient)
+}
+
+func TestDepartment(t *testing.T) {
+	suite.Run(t, new(departmentTestSuite))
 }

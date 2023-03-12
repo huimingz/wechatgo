@@ -1,4 +1,4 @@
-package dept
+package wecom
 
 type DeptInfo struct {
 	Id       int    `json:"id"`       // 创建的部门id
@@ -7,7 +7,7 @@ type DeptInfo struct {
 	Order    int    `json:"order"`    // 在父部门中的次序值。order值大的排序靠前。值范围是[0, 2^32)
 }
 
-type UserInfo struct {
+type DepartmentUserInfo struct {
 	UserId     string `json:"userid"`     // 成员UserID。对应管理端的帐号
 	Name       string `json:"name"`       // 成员名称
 	Department []int  `json:"department"` // 成员所属部门列表。列表项为部门ID，32位整型

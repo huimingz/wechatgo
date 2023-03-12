@@ -1,31 +1,28 @@
 // Package dept 部门管理
-package dept
+package wecom
 
 import (
 	"context"
 	"net/url"
 	"strconv"
-
-	"github.com/huimingz/wechatgo/wecom"
-	"github.com/huimingz/wechatgo/wecom/user"
 )
 
 const (
-	urlDeptGet           = "/cgi-bin/department/list"
-	urlDeptDetailGet     = "/cgi-bin/department/get"
+	urlGetDepartments    = "/cgi-bin/department/list"
+	urlGetDepartment     = "/cgi-bin/department/get"
 	urlGetUserList       = "/cgi-bin/user/simplelist"
 	urlGetUserDetailList = "/cgi-bin/user/list"
-	urlDeptCreate        = "/cgi-bin/department/create"
-	urlDeptUpdate        = "/cgi-bin/department/update"
-	urlDeptDelete        = "/cgi-bin/department/delete"
+	urlCreateDepartment  = "/cgi-bin/department/create"
+	urlUpdateDepartment  = "/cgi-bin/department/update"
+	urlRemoveDepartment  = "/cgi-bin/department/delete"
 	urlDeptSimpleList    = "/cgi-bin/department/simplelist"
 )
 
 type WechatDept struct {
-	Client *wecom.WechatClient
+	Client *WechatClient
 }
 
-func NewWechatDept(client *wecom.WechatClient) *WechatDept {
+func NewWechatDept(client *WechatClient) *WechatDept {
 	return &WechatDept{client}
 }
 
@@ -42,7 +39,7 @@ func (w WechatDept) Get(ctx context.Context, deptId int) ([]DeptInfo, error) {
 	out := struct {
 		Department []DeptInfo `json:"department"`
 	}{}
-	err := w.Client.Get(ctx, urlDeptGet, values, nil, &out)
+	err := w.Client.Get(ctx, urlGetDepartments, values, nil, &out)
 	return out.Department, err
 }
 
@@ -54,7 +51,7 @@ func (w WechatDept) GetDetail(ctx context.Context, deptId int) (*DepartmentDetai
 	out := struct {
 		Department DepartmentDetail `json:"department"`
 	}{}
-	err := w.Client.Get(ctx, urlDeptDetailGet, values, nil, &out)
+	err := w.Client.Get(ctx, urlGetDepartment, values, nil, &out)
 	return &out.Department, err
 }
 
@@ -68,7 +65,7 @@ func (w WechatDept) GetList(ctx context.Context) ([]DeptInfo, error) {
 	out := struct {
 		Department []DeptInfo `json:"department"`
 	}{}
-	err := w.Client.Get(ctx, urlDeptGet, nil, nil, &out)
+	err := w.Client.Get(ctx, urlGetDepartments, nil, nil, &out)
 	return out.Department, err
 }
 
@@ -86,7 +83,27 @@ func (w WechatDept) GetSubList(ctx context.Context, id int) ([]DeptInfo, error) 
 // GetUserList 获取部门成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90200
-func (w WechatDept) GetUserList(ctx context.Context, deptId int, fetchChild bool) ([]UserInfo, error) {
+func (w WechatDept) GetUserList(ctx context.Context, deptId int, fetchChild bool) ([]AppUserInfo, error) {
+	values := url.Values{}
+	values.Add("department_id", strconv.Itoa(deptId))
+	if fetchChild {
+		values.Add("fetch_child", "1")
+	} else {
+		values.Add("fetch_child", "0")
+	}
+
+	out := struct {
+		UserList []AppUserInfo `json:"userlist"`
+	}{}
+
+	err := w.Client.Get(ctx, urlGetUserList, values, nil, &out)
+	return out.UserList, err
+}
+
+// 获取部门成员详情
+//
+// 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90201
+func (w WechatDept) GetUserDetailList(ctx context.Context, deptId int, fetchChild bool) ([]UserInfo, error) {
 	values := url.Values{}
 	values.Add("department_id", strconv.Itoa(deptId))
 	if fetchChild {
@@ -97,26 +114,6 @@ func (w WechatDept) GetUserList(ctx context.Context, deptId int, fetchChild bool
 
 	out := struct {
 		UserList []UserInfo `json:"userlist"`
-	}{}
-
-	err := w.Client.Get(ctx, urlGetUserList, values, nil, &out)
-	return out.UserList, err
-}
-
-// 获取部门成员详情
-//
-// 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90201
-func (w WechatDept) GetUserDetailList(ctx context.Context, deptId int, fetchChild bool) ([]user.UserInfo, error) {
-	values := url.Values{}
-	values.Add("department_id", strconv.Itoa(deptId))
-	if fetchChild {
-		values.Add("fetch_child", "1")
-	} else {
-		values.Add("fetch_child", "0")
-	}
-
-	out := struct {
-		UserList []user.UserInfo `json:"userlist"`
 	}{}
 	err := w.Client.Get(ctx, urlGetUserDetailList, values, nil, &out)
 	return out.UserList, err
@@ -144,7 +141,7 @@ func (w WechatDept) Create(ctx context.Context, name string, parentId, order, de
 	out := struct {
 		Id int `json:"id"`
 	}{}
-	err = w.Client.Post(ctx, urlDeptCreate, nil, data, nil, &out)
+	err = w.Client.Post(ctx, urlCreateDepartment, nil, data, nil, &out)
 	return out.Id, err
 }
 
@@ -166,7 +163,7 @@ func (w WechatDept) Update(ctx context.Context, deptId, parentId, order int, nam
 		Order:    order,
 	}
 
-	return w.Client.Post(ctx, urlDeptUpdate, nil, data, nil, nil)
+	return w.Client.Post(ctx, urlUpdateDepartment, nil, data, nil, nil)
 }
 
 // Delete 删除部门
@@ -176,5 +173,5 @@ func (w WechatDept) Delete(ctx context.Context, deptId int) error {
 	values := url.Values{}
 	values.Add("id", strconv.Itoa(deptId))
 
-	return w.Client.Get(ctx, urlDeptDelete, values, nil, nil)
+	return w.Client.Get(ctx, urlRemoveDepartment, values, nil, nil)
 }

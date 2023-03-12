@@ -14,14 +14,14 @@ import (
 	"github.com/huimingz/wechatgo/testdata"
 )
 
-var httpClient = &http.Client{}
-
 type TestSuite struct {
 	suite.Suite
+	httpClient *http.Client
 }
 
 func (s *TestSuite) SetupSuite() {
-	httpmock.ActivateNonDefault(httpClient)
+	s.httpClient = &http.Client{}
+	httpmock.ActivateNonDefault(s.httpClient)
 }
 
 func (s *TestSuite) TearDownSuite() {
@@ -54,15 +54,14 @@ func (s *TestSuite) readFixture(filename string) string {
 
 type AppTestSuite struct {
 	TestSuite
-	httpClient *http.Client
-	wecom      *Wecom
+	wecom *Wecom
 }
 
 func (s *AppTestSuite) SetupSuite() {
 	s.TestSuite.SetupSuite()
 
 	var conf = testdata.TestConf
-	s.wecom = NewWecom(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(httpClient))
+	s.wecom = NewWecom(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(s.httpClient))
 }
 
 func (s *AppTestSuite) TearDownSuite() {

@@ -1,11 +1,11 @@
 package wecom
 
-type UserInfo struct {
+type AppUserInfo struct {
 	UserId string `json:"userid"` // 用户id
 }
 
-type UserInfos struct {
-	User []UserInfo `json:"user"` // userid列表
+type AppUserInfoList struct {
+	User []AppUserInfo `json:"user"` // userid列表
 }
 
 type Partys struct {
@@ -18,15 +18,15 @@ type Tags struct {
 
 type AppDetail struct {
 	AppIntro
-	Description        string    `json:"description"`          // 企业应用详情
-	AllowUserInfos     UserInfos `json:"allow_userinfos"`      // 企业应用可见范围（人员），其中包括userid
-	AllowPartys        Partys    `json:"allow_partys"`         // 企业应用可见范围（部门）
-	AllowTags          Tags      `json:"allow_tags"`           // 企业应用可见范围（标签）
-	Close              int       `json:"close"`                // 企业应用是否被停用
-	RedirectDomain     string    `json:"redirect_domain"`      // 企业应用可信域名
-	ReportLocationFlag int       `json:"report_location_flag"` // 企业应用是否打开地理位置上报 0：不上报；1：进入会话上报；
-	IsResportEnter     int       `json:"isreportenter"`        // 是否上报用户进入应用事件。0：不接收；1：接收
-	HomeUrl            string    `json:"home_url"`             // 应用主页url
+	Description        string          `json:"description"`          // 企业应用详情
+	AllowUserInfos     AppUserInfoList `json:"allow_userinfos"`      // 企业应用可见范围（人员），其中包括userid
+	AllowPartys        Partys          `json:"allow_partys"`         // 企业应用可见范围（部门）
+	AllowTags          Tags            `json:"allow_tags"`           // 企业应用可见范围（标签）
+	Close              int             `json:"close"`                // 企业应用是否被停用
+	RedirectDomain     string          `json:"redirect_domain"`      // 企业应用可信域名
+	ReportLocationFlag int             `json:"report_location_flag"` // 企业应用是否打开地理位置上报 0：不上报；1：进入会话上报；
+	IsResportEnter     int             `json:"isreportenter"`        // 是否上报用户进入应用事件。0：不接收；1：接收
+	HomeUrl            string          `json:"home_url"`             // 应用主页url
 }
 
 type AppIntro struct {

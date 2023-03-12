@@ -6,7 +6,6 @@ import (
 	"net/url"
 
 	"github.com/huimingz/wechatgo/wecom"
-	"github.com/huimingz/wechatgo/wecom/user"
 )
 
 const (
@@ -23,16 +22,16 @@ const (
 )
 
 type ExternalContact struct {
-	ExternalUserId  string              `json:"external_userid"`  // 外部联系人的userid
-	Name            string              `json:"name"`             // 外部联系人的姓名或别名
-	Position        string              `json:"position"`         // 外部联系人的职位，如果外部企业或用户选择隐藏职位，则不返回，仅当联系人类型是企业微信用户时有此字段
-	Avatar          string              `json:"avatar"`           // 外部联系人头像，第三方不可获取
-	CorpName        string              `json:"corp_name"`        // 外部联系人所在企业的简称，仅当联系人类型是企业微信用户时有此字段
-	CorpFullName    string              `json:"corp_full_name"`   // 外部联系人所在企业的主体名称，仅当联系人类型是企业微信用户时有此字段
-	Type            int                 `json:"type"`             // 外部联系人的类型，1表示该外部联系人是微信用户，2表示该外部联系人是企业微信用户
-	Gender          int                 `json:"gender"`           // 外部联系人性别 0-未知 1-男性 2-女性
-	UnionId         string              `json:"unionid"`          // 外部联系人在微信开放平台的唯一身份标识（微信unionid），通过此字段企业可将外部联系人与公众号/小程序用户关联起来。
-	ExternalProfile user.UserExtProfile `json:"external_profile"` // 外部联系人的自定义展示信息，可以有多个字段和多种类型，包括文本，网页和小程序，仅当联系人类型是企业微信用户时有此字段，字段详情见对外属性；
+	ExternalUserId  string               `json:"external_userid"`  // 外部联系人的userid
+	Name            string               `json:"name"`             // 外部联系人的姓名或别名
+	Position        string               `json:"position"`         // 外部联系人的职位，如果外部企业或用户选择隐藏职位，则不返回，仅当联系人类型是企业微信用户时有此字段
+	Avatar          string               `json:"avatar"`           // 外部联系人头像，第三方不可获取
+	CorpName        string               `json:"corp_name"`        // 外部联系人所在企业的简称，仅当联系人类型是企业微信用户时有此字段
+	CorpFullName    string               `json:"corp_full_name"`   // 外部联系人所在企业的主体名称，仅当联系人类型是企业微信用户时有此字段
+	Type            int                  `json:"type"`             // 外部联系人的类型，1表示该外部联系人是微信用户，2表示该外部联系人是企业微信用户
+	Gender          int                  `json:"gender"`           // 外部联系人性别 0-未知 1-男性 2-女性
+	UnionId         string               `json:"unionid"`          // 外部联系人在微信开放平台的唯一身份标识（微信unionid），通过此字段企业可将外部联系人与公众号/小程序用户关联起来。
+	ExternalProfile wecom.UserExtProfile `json:"external_profile"` // 外部联系人的自定义展示信息，可以有多个字段和多种类型，包括文本，网页和小程序，仅当联系人类型是企业微信用户时有此字段，字段详情见对外属性；
 }
 
 type FollowUserTag struct {
