@@ -54,16 +54,15 @@ func (s *TestSuite) readFixture(filename string) string {
 
 type AppTestSuite struct {
 	TestSuite
-	wechatAppManage *WechatAppManage
-	httpClient      *http.Client
+	httpClient *http.Client
+	wecom      *Wecom
 }
 
 func (s *AppTestSuite) SetupSuite() {
 	s.TestSuite.SetupSuite()
 
 	var conf = testdata.TestConf
-	wechatClient := NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(httpClient))
-	s.wechatAppManage = NewWechatAppManage(wechatClient)
+	s.wecom = NewWecom(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(httpClient))
 }
 
 func (s *AppTestSuite) TearDownSuite() {
@@ -73,7 +72,7 @@ func (s *AppTestSuite) TearDownSuite() {
 func (s *AppTestSuite) TestCreateApp() {
 	s.registerSuccessResponder(http.MethodPost, urlCreateApp)
 
-	err := s.wechatAppManage.CreateApp(context.Background(), AppInfo{
+	err := s.wecom.App.CreateApp(context.Background(), AppInfo{
 		AgentId:     1000321,
 		Description: "some comment for app",
 	})
@@ -84,7 +83,7 @@ func (s *AppTestSuite) TestCreateApp() {
 func (s *AppTestSuite) TestShouldGetAllApp() {
 	s.registerResponder(http.MethodGet, urlGetAllApp)
 
-	appIntro, err := s.wechatAppManage.GetAllApp(context.Background())
+	appIntro, err := s.wecom.App.GetAllApp(context.Background())
 
 	s.NoError(err)
 	s.NotEmpty(appIntro)
@@ -93,7 +92,7 @@ func (s *AppTestSuite) TestShouldGetAllApp() {
 func (s *AppTestSuite) TestShouldGetApp() {
 	s.registerResponder(http.MethodGet, urlGetApp)
 
-	appDetail, err := s.wechatAppManage.GetApp(context.Background(), testdata.TestConf.AgentId)
+	appDetail, err := s.wecom.App.GetApp(context.Background(), testdata.TestConf.AgentId)
 
 	s.NoError(err)
 	s.NotEmpty(appDetail.Name)
@@ -113,7 +112,7 @@ func (s *AppTestSuite) TestShouldCreateMenu() {
 	}
 	menu.Button = append(menu.Button, button)
 
-	err := s.wechatAppManage.CreateMenu(context.Background(), menu, 0)
+	err := s.wecom.App.CreateMenu(context.Background(), menu, 0)
 
 	s.NoError(err)
 }
@@ -121,7 +120,7 @@ func (s *AppTestSuite) TestShouldCreateMenu() {
 func (s *AppTestSuite) TestShouldGetMenu() {
 	s.registerResponder(http.MethodGet, urlGetMenu)
 
-	menu, err := s.wechatAppManage.GetMenu(context.Background(), testdata.TestConf.AgentId)
+	menu, err := s.wecom.App.GetMenu(context.Background(), testdata.TestConf.AgentId)
 
 	s.NoError(err)
 	s.NotEmpty(menu.Button)
@@ -132,7 +131,7 @@ func (s *AppTestSuite) TestShouldDeleteMenu() {
 	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_success.json"))
 	httpmock.RegisterResponder(http.MethodGet, BASE_URL+urlDelMenu, responder)
 
-	err := s.wechatAppManage.DeleteMenu(context.Background(), 0)
+	err := s.wecom.App.DeleteMenu(context.Background(), 0)
 
 	s.NoError(err)
 }
