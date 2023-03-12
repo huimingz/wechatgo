@@ -26,18 +26,18 @@ import (
 const _BASE_URL = "https://qyapi.weixin.qq.com"
 
 type WechatClient struct {
-	CorpId      string          // 企业ID
-	CorpSecret  string          // 应用的凭证密钥
-	AgentId     int             // agent id
-	httpClient  *http.Client    // http.Client 对象
-	accessToken string          // 凭证
-	expiresIn   time.Duration   // 凭证的有效时间
-	lastFresh   time.Time       // 最后一次token刷新时间
-	mutex       *sync.Mutex     // 互斥锁
-	baseUrl     string          // 微信服务器Url
-	storage     storage.Storage // token存储器
-	storageKey  string          // token的key值
-	log         wechatgo.Logger // 日志
+	CorpId           string          // 企业ID
+	CorpSecret       string          // 应用的凭证密钥
+	AgentId          int             // agent id
+	httpClient       *http.Client    // http.Client 对象
+	accessToken      string          // 凭证
+	expiresIn        time.Duration   // 凭证的有效时间
+	lastFresh        time.Time       // 最后一次token刷新时间
+	tokenWriterMutex *sync.Mutex     // 互斥锁
+	baseUrl          string          // 微信服务器Url
+	storage          storage.Storage // token存储器
+	storageKey       string          // token的key值
+	log              wechatgo.Logger // 日志
 }
 
 type WechatClientOption func(client *WechatClient)
@@ -72,7 +72,7 @@ func WechatClientWithExpiresIn(sec time.Duration) WechatClientOption {
 
 func WechatClientWithMutex(lock *sync.Mutex) WechatClientOption {
 	return func(client *WechatClient) {
-		client.mutex = lock
+		client.tokenWriterMutex = lock
 	}
 }
 
@@ -93,8 +93,8 @@ func NewWechatClient(corpid, corpSecret string, agentId int, options ...WechatCl
 	if client.expiresIn == 0 {
 		client.expiresIn = time.Second * 7200
 	}
-	if client.mutex == nil {
-		client.mutex = &sync.Mutex{}
+	if client.tokenWriterMutex == nil {
+		client.tokenWriterMutex = &sync.Mutex{}
 	}
 	if client.storage == nil {
 		client.storage = storage.NewMemoryStorage()
@@ -186,8 +186,8 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 	// 检查过期时间是否有效，无效则重新设置
 	if accessToken.ErrCode == 0 && accessToken.AccessToken != "" {
 		if client.expiresIn == 0 || client.expiresIn > time.Second*7200 {
-			client.mutex.Lock()
-			defer client.mutex.Unlock()
+			client.tokenWriterMutex.Lock()
+			defer client.tokenWriterMutex.Unlock()
 			client.log.Info(ctx, fmt.Sprintf("Old expiresIn is't valid, set new expiresIn = %ds", accessToken.ExpiresIn))
 			client.expiresIn = time.Duration(accessToken.ExpiresIn) * 1000 * 1000 * 1000
 		}
@@ -219,16 +219,10 @@ func (client *WechatClient) resourceURL(path string, query url.Values) string {
 	var uri string
 	re, _ := regexp.Compile("^https?://.*")
 
-	if !re.MatchString(path) {
-		if strings.HasSuffix(client.baseUrl, "/") {
-			client.mutex.Lock()
-			defer client.mutex.Unlock()
-			client.baseUrl = strings.TrimRight(client.baseUrl, "/")
-		}
-		path = strings.TrimLeft(path, "/")
-		uri = client.baseUrl + "/" + path
-	} else {
+	if re.MatchString(path) {
 		uri = path
+	} else {
+		uri = client.baseUrl + "/" + strings.TrimLeft(path, "/")
 	}
 
 	if query != nil && len(query) > 0 {
