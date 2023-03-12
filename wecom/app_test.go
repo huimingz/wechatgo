@@ -37,12 +37,12 @@ func (s *TestSuite) BeforeTest(suiteName, testName string) {
 func (s *TestSuite) registerResponder(method, path string) {
 	filename := fmt.Sprintf("response%s.json", strings.ReplaceAll(path, "/", "_"))
 	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture(filename))
-	httpmock.RegisterResponder(method, BASE_URL+path, responder)
+	httpmock.RegisterResponder(method, _BASE_URL+path, responder)
 }
 
 func (s *TestSuite) registerSuccessResponder(method, path string) {
 	responder := httpmock.NewStringResponder(http.StatusOK, `{"errcode":0,"errmsg":"ok"}`)
-	httpmock.RegisterResponder(method, BASE_URL+path, responder)
+	httpmock.RegisterResponder(method, _BASE_URL+path, responder)
 }
 
 func (s *TestSuite) readFixture(filename string) string {
@@ -100,7 +100,7 @@ func (s *AppTestSuite) TestShouldGetApp() {
 
 func (s *AppTestSuite) TestShouldCreateMenu() {
 	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_success.json"))
-	httpmock.RegisterResponder(http.MethodPost, BASE_URL+urlCreateMenu, responder)
+	httpmock.RegisterResponder(http.MethodPost, _BASE_URL+urlCreateMenu, responder)
 
 	menu := Menu{}
 	button := Button{
@@ -129,7 +129,7 @@ func (s *AppTestSuite) TestShouldGetMenu() {
 
 func (s *AppTestSuite) TestShouldDeleteMenu() {
 	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_success.json"))
-	httpmock.RegisterResponder(http.MethodGet, BASE_URL+urlDelMenu, responder)
+	httpmock.RegisterResponder(http.MethodGet, _BASE_URL+urlDelMenu, responder)
 
 	err := s.wecom.App.DeleteMenu(context.Background(), 0)
 
