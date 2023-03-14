@@ -3,15 +3,13 @@
 // 文档网址：https://work.weixin.qq.com/api/doc#90000/90135/90193
 
 // Package user 成员管理
-package user
+package wecom
 
 import (
 	"context"
 	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/huimingz/wechatgo/wecom"
 )
 
 const (
@@ -79,7 +77,7 @@ type UserForCreate struct {
 	// 自定义字段。自定义字段需要先在WEB管理端添加，见扩展属性添加方法，否则忽略未知属性
 	// 的赋值。与对外属性一致，不过只支持type=0的文本和type=1的网页类型，详细描述查看对
 	// 外属性
-	ExtAttr *wecom.UserExtAttr `json:"extattr,omitempty"`
+	ExtAttr *UserExtAttr `json:"extattr,omitempty"`
 
 	// 是否邀请该成员使用企业微信（将通过微信服务通知或短信或邮件下发邀请，
 	// 每天自动下发一次，最多持续3个工作日），默认值为true
@@ -90,7 +88,7 @@ type UserForCreate struct {
 	ExternalPosition string `json:"external_position,omitempty"`
 
 	// 成员对外属性，字段详情见对外属性
-	ExternalProfile *wecom.UserExtProfile `json:"external_profile,omitempty"`
+	ExternalProfile *UserExtProfile `json:"external_profile,omitempty"`
 }
 
 type UserForUpdate struct {
@@ -141,22 +139,22 @@ type UserForUpdate struct {
 	// 自定义字段。自定义字段需要先在WEB管理端添加，见扩展属性添加方法，
 	// 否则忽略未知属性的赋值。与对外属性一致，不过只支持type=0的文本和type=1的网页类型，
 	// 详细描述查看对外属性
-	ExtAttr *wecom.UserExtAttr `json:"extattr,omitempty"`
+	ExtAttr *UserExtAttr `json:"extattr,omitempty"`
 
 	// 对外职务，如果设置了该值，则以此作为对外展示的职务，否则以position来展示。
 	// 不超过12个汉字
 	ExternalPosition string `json:"external_position,omitempty"`
 
 	// 成员对外属性，字段详情见对外属性
-	ExternalProfile *wecom.UserExtProfile `json:"external_profile,omitempty"`
+	ExternalProfile *UserExtProfile `json:"external_profile,omitempty"`
 }
 
-type WechatUser struct {
-	Client *wecom.WechatClient
+type UserManager struct {
+	Client *WechatClient
 }
 
-func NewWechatUser(client *wecom.WechatClient) *WechatUser {
-	return &WechatUser{client}
+func newManager(client *WechatClient) *UserManager {
+	return &UserManager{client}
 }
 
 // 读取成员
@@ -165,11 +163,11 @@ func NewWechatUser(client *wecom.WechatClient) *WechatUser {
 // 的可见范围内的成员信息。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90196
-func (w *WechatUser) GetUser(ctx context.Context, userId string) (*wecom.UserInfo, error) {
+func (w *UserManager) GetUser(ctx context.Context, userId string) (*UserInfo, error) {
 	values := url.Values{}
 	values.Add("userid", userId)
 
-	out := wecom.UserInfo{}
+	out := UserInfo{}
 	err := w.Client.Get(ctx, urlUserGet, values, nil, &out)
 	return &out, err
 }
@@ -177,21 +175,21 @@ func (w *WechatUser) GetUser(ctx context.Context, userId string) (*wecom.UserInf
 // 创建成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90195
-func (w *WechatUser) CreateUser(ctx context.Context, data UserForCreate) error {
+func (w *UserManager) CreateUser(ctx context.Context, data UserForCreate) error {
 	return w.Client.Post(ctx, urlUserCreate, nil, data, nil, nil)
 }
 
 // 更新成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90197
-func (w *WechatUser) UpdateUser(ctx context.Context, data UserForUpdate) error {
+func (w *UserManager) UpdateUser(ctx context.Context, data UserForUpdate) error {
 	return w.Client.Post(ctx, urlUserUpdate, nil, data, nil, nil)
 }
 
 // 删除成员
 //
 // https://work.weixin.qq.com/api/doc#90000/90135/90198
-func (w *WechatUser) DeleteUser(ctx context.Context, userId string) error {
+func (w *UserManager) DeleteUser(ctx context.Context, userId string) error {
 	values := url.Values{}
 	values.Add("userid", userId)
 
@@ -201,7 +199,7 @@ func (w *WechatUser) DeleteUser(ctx context.Context, userId string) error {
 // 批量删除成员
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90199
-func (w *WechatUser) DeleteUsers(ctx context.Context, userIdlist []string) error {
+func (w *UserManager) DeleteUsers(ctx context.Context, userIdlist []string) error {
 	users := struct {
 		UserIdList []string `json:"useridlist"`
 	}{
@@ -218,7 +216,7 @@ func (w *WechatUser) DeleteUsers(ctx context.Context, userIdlist []string) error
 // 注：需要成员使用微信登录企业微信或者关注微工作台（原企业号）才能转成openid
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90202
-func (w *WechatUser) UserId2OpenId(ctx context.Context, userId string) (openId string, err error) {
+func (w *UserManager) UserId2OpenId(ctx context.Context, userId string) (openId string, err error) {
 	data := struct {
 		UserId string `json:"userid"` // 企业内的成员id
 	}{
@@ -241,7 +239,7 @@ func (w *WechatUser) UserId2OpenId(ctx context.Context, userId string) (openId s
 // 可以通过调用该接口进行转换查询。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90202
-func (w *WechatUser) OpenId2UserId(ctx context.Context, openid string) (userId string, err error) {
+func (w *UserManager) OpenId2UserId(ctx context.Context, openid string) (userId string, err error) {
 	data := struct {
 		OpenId string `json:"openid"` // 在使用企业支付之后，返回结果的openid
 	}{
@@ -257,7 +255,7 @@ func (w *WechatUser) OpenId2UserId(ctx context.Context, openid string) (userId s
 }
 
 // Phone2UserId 手机号换userid
-func (w *WechatUser) Phone2UserId(ctx context.Context, phone string) (userId string, err error) {
+func (w *UserManager) Phone2UserId(ctx context.Context, phone string) (userId string, err error) {
 	if phone == "" {
 		return "", nil
 	}
@@ -271,7 +269,7 @@ func (w *WechatUser) Phone2UserId(ctx context.Context, phone string) (userId str
 // 开启二次验证后，用户加入企业时需要跳转企业自定义的页面进行验证。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90203
-func (w *WechatUser) Verify(ctx context.Context, userId string) error {
+func (w *UserManager) Verify(ctx context.Context, userId string) error {
 	values := url.Values{}
 	values.Add("userid", userId)
 
@@ -283,7 +281,7 @@ func (w *WechatUser) Verify(ctx context.Context, userId string) error {
 // 企业可通过接口批量邀请成员使用企业微信，邀请后将通过短信或邮件下发通知。
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/90975
-func (w *WechatUser) Invite(ctx context.Context, user []string, party, tag []int) error {
+func (w *UserManager) Invite(ctx context.Context, user []string, party, tag []int) error {
 	data := struct {
 		User  []string `json:"user"`  // 成员ID列表, 最多支持1000个
 		Party []int    `json:"party"` // 部门ID列表，最多支持100个
@@ -303,7 +301,7 @@ func (w *WechatUser) Invite(ctx context.Context, user []string, party, tag []int
 // 二维码链接，有效期7天
 //
 // 参考文档：https://work.weixin.qq.com/api/doc#90000/90135/91714
-func (w *WechatUser) GetJoinQRCode(ctx context.Context, sizeType int) (joinQRCode string, err error) {
+func (w *UserManager) GetJoinQRCode(ctx context.Context, sizeType int) (joinQRCode string, err error) {
 	values := url.Values{}
 	if sizeType != 0 {
 		values.Add("size_type", strconv.Itoa(sizeType))
@@ -319,7 +317,7 @@ func (w *WechatUser) GetJoinQRCode(ctx context.Context, sizeType int) (joinQRCod
 }
 
 // GetActiveStat 获取企业活跃成员数
-func (w *WechatUser) GetActiveStat(ctx context.Context, date time.Time) (activeCount int, err error) {
+func (w *UserManager) GetActiveStat(ctx context.Context, date time.Time) (activeCount int, err error) {
 	payload := struct {
 		Date string `json:"date"`
 	}{

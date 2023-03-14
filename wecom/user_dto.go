@@ -60,7 +60,7 @@ type UserInfo struct {
 	Status int `json:"status,omitempty"`
 
 	// 员工个人二维码，扫描可添加为外部联系人；第三方仅通讯录应用可获取
-	QrCode string `json:"qr_code, omitempty"`
+	QrCode string `json:"qr_code,omitempty"`
 
 	// 对外职务，如果设置了该值，则以此作为对外展示的职务，否则以position来展示
 	ExternalPosition string `json:"external_position,omitempty"`

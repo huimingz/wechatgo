@@ -1,4 +1,4 @@
-package user
+package wecom
 
 import (
 	"context"
@@ -6,10 +6,9 @@ import (
 
 	"github.com/huimingz/wechatgo"
 	"github.com/huimingz/wechatgo/testdata"
-	"github.com/huimingz/wechatgo/wecom"
 )
 
-var wechatUser *WechatUser
+var wechatUserClient *UserManager
 
 func TestWechatUser_CreateUser(t *testing.T) {
 	user := UserForCreate{}
@@ -19,14 +18,14 @@ func TestWechatUser_CreateUser(t *testing.T) {
 	user.Email = "xxx@example.com"
 	user.ToInvite = false
 
-	err := wechatUser.CreateUser(context.Background(), user)
+	err := wechatUserClient.CreateUser(context.Background(), user)
 	if err != nil {
 		t.Errorf("WechatUser.CreateUser() error = '%s'", err)
 	}
 }
 
 func TestWechatUser_GetUser(t *testing.T) {
-	user, err := wechatUser.GetUser(context.Background(), "example_xxx")
+	user, err := wechatUserClient.GetUser(context.Background(), "example_xxx")
 	if err != nil {
 		t.Errorf("WechatUser.GetUser() error = '%s'", err)
 	}
@@ -40,12 +39,12 @@ func TestWechatUser_UpdateUser(t *testing.T) {
 	user.UserId = "example_xxx"
 	user.Name = "new_xxx"
 
-	err := wechatUser.UpdateUser(context.Background(), user)
+	err := wechatUserClient.UpdateUser(context.Background(), user)
 	if err != nil {
 		t.Errorf("WechatUser.UpdateUser() error = '%s'", err)
 	}
 
-	info, err := wechatUser.GetUser(context.Background(), user.UserId)
+	info, err := wechatUserClient.GetUser(context.Background(), user.UserId)
 	if err != nil {
 		t.Errorf("WechatUser.UpdateUser() error = '%s'", err)
 	}
@@ -55,21 +54,21 @@ func TestWechatUser_UpdateUser(t *testing.T) {
 }
 
 func TestWechatUser_Invite(t *testing.T) {
-	err := wechatUser.Invite(context.Background(), []string{"example_xxx"}, nil, nil)
+	err := wechatUserClient.Invite(context.Background(), []string{"example_xxx"}, nil, nil)
 	if err != nil {
 		t.Errorf("WechatUser.Invite() error = '%s'", err)
 	}
 }
 
 func TestWechatUser_Verify(t *testing.T) {
-	err := wechatUser.Verify(context.Background(), "example_xxx")
+	err := wechatUserClient.Verify(context.Background(), "example_xxx")
 	if err != nil {
 		t.Errorf("WechatUser.Verify() error = '%s'", err)
 	}
 }
 
 func TestWechatUser_UserId2OpenId(t *testing.T) {
-	openId, err := wechatUser.UserId2OpenId(context.Background(), testdata.TestConf.UserId)
+	openId, err := wechatUserClient.UserId2OpenId(context.Background(), testdata.TestConf.UserId)
 	if err != nil {
 		t.Errorf("WechatUser.UserId2OpenId() error = '%s'", err)
 	}
@@ -79,12 +78,12 @@ func TestWechatUser_UserId2OpenId(t *testing.T) {
 }
 
 func TestWechatUser_DeleteUser(t *testing.T) {
-	err := wechatUser.DeleteUser(context.Background(), "example_xxx")
+	err := wechatUserClient.DeleteUser(context.Background(), "example_xxx")
 	if err != nil {
 		t.Errorf("WechatUser.DeleteUser() error = '%s'", err)
 	}
 
-	err = wechatUser.DeleteUser(context.Background(), "example_xxx")
+	err = wechatUserClient.DeleteUser(context.Background(), "example_xxx")
 	if err != nil {
 		if v, ok := err.(*wechatgo.WechatMessageError); ok {
 			if v.ErrCode != 60111 {
@@ -104,19 +103,19 @@ func TestWechatUser_DeleteUsers(t *testing.T) {
 	user.Department = []int{1}
 	user.ToInvite = false
 
-	err := wechatUser.CreateUser(context.Background(), user)
+	err := wechatUserClient.CreateUser(context.Background(), user)
 	if err != nil {
 		t.Errorf("WechatUser.DeleteUsers() error = '%s'", err)
 	}
 
-	err = wechatUser.DeleteUsers(context.Background(), []string{user.UserId})
+	err = wechatUserClient.DeleteUsers(context.Background(), []string{user.UserId})
 	if err != nil {
 		t.Errorf("WechatUser.DeleteUsers() error = '%s'", err)
 	}
 }
 
 func TestWechatUser_OpenId2UserId(t *testing.T) {
-	userId, err := wechatUser.OpenId2UserId(context.Background(), testdata.TestConf.OpenId)
+	userId, err := wechatUserClient.OpenId2UserId(context.Background(), testdata.TestConf.OpenId)
 	if err != nil {
 		t.Errorf("WechatUser.OpenId2UserId() error = '%s'", err)
 	}
@@ -127,7 +126,7 @@ func TestWechatUser_OpenId2UserId(t *testing.T) {
 }
 
 func TestWechatUser_GetJoinQRCode(t *testing.T) {
-	qrCode, err := wechatUser.GetJoinQRCode(context.Background(), 0)
+	qrCode, err := wechatUserClient.GetJoinQRCode(context.Background(), 0)
 	if err != nil {
 		t.Errorf("WechatUser.GetJoinQRCode() error = '%s'", err)
 	}
@@ -139,6 +138,6 @@ func TestWechatUser_GetJoinQRCode(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
-	wechatUser = NewWechatUser(wechatClient)
+	var wechatClient = NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
+	wechatUserClient = newManager(wechatClient)
 }

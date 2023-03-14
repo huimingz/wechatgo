@@ -1,4 +1,4 @@
-package user
+package wecom
 
 import (
 	"github.com/huimingz/wechatgo"
