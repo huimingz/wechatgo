@@ -292,7 +292,7 @@ func (w *UserManager) Invite(ctx context.Context, user []string, party, tag []in
 		Tag:   tag,
 	}
 
-	return w.Client.Post(ctx, urlUerInvate, nil, data, &InvitError{}, nil)
+	return w.Client.Post(ctx, urlUerInvate, nil, data, &InvalidError{}, nil)
 }
 
 // 获取加入企业二维码
