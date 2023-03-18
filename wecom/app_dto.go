@@ -8,7 +8,7 @@ type AppUserInfoList struct {
 	User []AppUserInfo `json:"user"` // userid列表
 }
 
-type Partys struct {
+type Parties struct {
 	PartyId []int `json:"partyid"` // 部门id列表
 }
 
@@ -20,7 +20,7 @@ type AppDetail struct {
 	AppIntro
 	Description        string          `json:"description"`          // 企业应用详情
 	AllowUserInfos     AppUserInfoList `json:"allow_userinfos"`      // 企业应用可见范围（人员），其中包括userid
-	AllowPartys        Partys          `json:"allow_partys"`         // 企业应用可见范围（部门）
+	AllowPartys        Parties         `json:"allow_partys"`         // 企业应用可见范围（部门）
 	AllowTags          Tags            `json:"allow_tags"`           // 企业应用可见范围（标签）
 	Close              int             `json:"close"`                // 企业应用是否被停用
 	RedirectDomain     string          `json:"redirect_domain"`      // 企业应用可信域名
