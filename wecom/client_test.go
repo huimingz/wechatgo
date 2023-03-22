@@ -5,55 +5,71 @@ import (
 	"testing"
 
 	"github.com/huimingz/wechatgo/testdata"
+	"github.com/stretchr/testify/suite"
 )
 
-var corpId string = testdata.TestConf.CorpId
-var corpSecret string = testdata.TestConf.CorpSecret
-var agentId int = testdata.TestConf.AgentId
+var wechatClient = NewWechatClient(testdata.TestConf.CorpId, testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
 
-var wechatClient = NewWechatClient(corpId, corpSecret, agentId)
+type WechatClientSuite struct {
+	suite.Suite
+	client *WechatClient
+}
 
-func TestWechatClient_IsExpired(t *testing.T) {
+func (s *WechatClientSuite) SetupSuite() {
+	s.client = NewWechatClient(
+		testdata.TestConf.CorpId,
+		testdata.TestConf.CorpSecret,
+		testdata.TestConf.AgentId,
+	)
+}
+
+func (s *WechatClientSuite) TestShouldBeExpiredIfNotRefreshAccessToken() {
 	client := NewWechatClient("", "", 0)
-	if client.IsExpired(context.Background()) != true {
-		t.Error("WechatClient.IsExpired() error = 'isExpired != true'")
-	}
 
-	_, _ = wechatClient.GetAccessToken(context.Background())
-	if wechatClient.IsExpired(context.Background()) != false {
-		t.Error("WechatClient.IsExpired() error = 'isExpired != false'")
-	}
+	s.True(client.IsExpired(context.Background()))
 }
 
-func TestWechatClient_GetAccessToken(t *testing.T) {
-	accessToken, _ := wechatClient.GetAccessToken(context.Background())
-	if accessToken == "" {
-		t.Error("WechatClient.GetAccessToken() 返回结果access_token为空字符串")
-	}
+func (s *WechatClientSuite) TestShouldBeNotExpiredIfRefreshAccessToken() {
+	s.client.GetAccessToken(context.Background())
 
-	// invalid client
-	client := NewWechatClient("xxx", corpSecret, agentId)
-	accessToken, _ = client.GetAccessToken(context.Background())
-	if accessToken != "" {
-		t.Error("WechatClient.GetAccessToken() 返回结果access_token值为非空字符串")
-	}
+	s.False(s.client.IsExpired(context.Background()))
 }
 
-func TestWechatClient_FetchAccessToken(t *testing.T) {
-	err := wechatClient.FetchAccessToken(context.Background())
-	if err != nil {
-		t.Errorf("WechatClient.FetchAccessToken() error = %s", err)
-	}
-	if token, _ := wechatClient.GetAccessToken(context.Background()); token == "" {
-		t.Error("WechatClient.FetchAccessToken() accessToken值为空字符串")
-	}
+func (s *WechatClientSuite) TestShouldGetAccessTokenSuccessfully() {
+	accessToken, err := s.client.GetAccessToken(context.Background())
+
+	s.NoError(err)
+	s.NotEmpty(accessToken)
 }
 
-func TestWechatClient_GetAccessTokenStorageKey(t *testing.T) {
-	key := wechatClient.GetAccessTokenStorageKey()
-	expect := "accesstoken_" + wechatClient.CorpSecret
-	if key != expect {
-		t.Errorf("WechatClient.GetAccessTokenStorageKey() result != expect, %s != %s", key, expect)
-	}
+func (s *WechatClientSuite) TestShouldRaiseErrorIfInvalidClientWhenGetAccessToken() {
+	client := NewWechatClient("xxx", testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
+	accessToken, err := client.GetAccessToken(context.Background())
 
+	s.Error(err)
+	s.Empty(accessToken)
+}
+
+func (s *WechatClientSuite) TestShoulFetchAccessTokenSuccessfully() {
+	err := s.client.FetchAccessToken(context.Background())
+
+	s.NoError(err)
+}
+
+func (s *WechatClientSuite) TestShouldRaiseErrorIfInvalidClientWhenFetchAccessToken() {
+	client := NewWechatClient("xxx", testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
+	err := client.FetchAccessToken(context.Background())
+
+	s.Error(err)
+}
+
+func (s *WechatClientSuite) TestShouldGetAccessTokenStorageKeySuccessfully() {
+	key := s.client.GetAccessTokenStorageKey()
+	expect := "accesstoken_" + s.client.CorpSecret
+
+	s.Equal(key, expect)
+}
+
+func TestWechatClientSuite(t *testing.T) {
+	suite.Run(t, new(WechatClientSuite))
 }
