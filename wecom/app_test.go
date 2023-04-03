@@ -101,16 +101,17 @@ func (s *AppTestSuite) TestShouldCreateMenu() {
 	responder := httpmock.NewStringResponder(http.StatusOK, s.readFixture("response_success.json"))
 	httpmock.RegisterResponder(http.MethodPost, _BASE_URL+urlCreateMenu, responder)
 
-	menu := Menu{}
-	button := Button{
-		Type:      "view",
-		Name:      "golang",
-		Url:       "https://www.golang.org",
-		Key:       "",
-		SubButton: nil,
+	menu := Menu{
+		Button: []Button{
+			{
+				Type:      "view",
+				Name:      "golang",
+				Url:       "https://www.golang.org",
+				Key:       "",
+				SubButton: nil,
+			},
+		},
 	}
-	menu.Button = append(menu.Button, button)
-
 	err := s.wecom.App.CreateMenu(context.Background(), menu, 0)
 
 	s.NoError(err)
