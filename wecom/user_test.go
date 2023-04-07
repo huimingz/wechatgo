@@ -4,8 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/huimingz/wechatgo/testdata"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/huimingz/wechatgo/testdata"
 )
 
 type userTestSuite struct {
@@ -15,7 +16,7 @@ type userTestSuite struct {
 
 func (s *userTestSuite) SetupSuite() {
 	conf := testdata.TestConf
-	wechatClient := NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
+	wechatClient := NewClient(conf.CorpId, conf.UserSecret, conf.AgentId)
 	s.user = newManager(wechatClient)
 }
 

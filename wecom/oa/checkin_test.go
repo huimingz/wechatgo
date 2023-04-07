@@ -29,6 +29,6 @@ func TestWechatCheckin_GetOption(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CheckinSecret, conf.CheckinAgentId)
+	var wechatClient = wecom.NewClient(conf.CorpId, conf.CheckinSecret, conf.CheckinAgentId)
 	wechatCheckin = NewWechatCheckin(wechatClient)
 }

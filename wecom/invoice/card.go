@@ -64,10 +64,10 @@ type CardInfo struct {
 }
 
 type WechatInvoice struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatInvoice(client *wecom.WechatClient) *WechatInvoice {
+func NewWechatInvoice(client *wecom.Client) *WechatInvoice {
 	return &WechatInvoice{client}
 }
 

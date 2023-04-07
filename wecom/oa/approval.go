@@ -59,10 +59,10 @@ type ApprovalData struct {
 }
 
 type WechatApproval struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatApproval(client *wecom.WechatClient) *WechatApproval {
+func NewWechatApproval(client *wecom.Client) *WechatApproval {
 	return &WechatApproval{client}
 }
 

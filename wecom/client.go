@@ -25,7 +25,7 @@ import (
 
 const _BASE_URL = "https://qyapi.weixin.qq.com"
 
-type WechatClient struct {
+type Client struct {
 	CorpId           string          // 企业ID
 	CorpSecret       string          // 应用的凭证密钥
 	AgentId          int             // agent id
@@ -40,45 +40,45 @@ type WechatClient struct {
 	log              wechatgo.Logger // 日志
 }
 
-type WechatClientOption func(client *WechatClient)
+type ClientOptionFn func(client *Client)
 
-func WechatClientWithLogger(logger wechatgo.Logger) WechatClientOption {
-	return func(client *WechatClient) {
+func ClientWithLogger(logger wechatgo.Logger) ClientOptionFn {
+	return func(client *Client) {
 		client.log = logger
 	}
 }
 
-func WechatClientWithStorage(storage storage.Storage) WechatClientOption {
-	return func(client *WechatClient) {
+func ClientWithStorage(storage storage.Storage) ClientOptionFn {
+	return func(client *Client) {
 		client.storage = storage
 	}
 }
 
-func WechatClientWithHTTPClient(httpClient *http.Client) WechatClientOption {
-	return func(client *WechatClient) {
+func ClientWithHTTPClient(httpClient *http.Client) ClientOptionFn {
+	return func(client *Client) {
 		client.httpClient = httpClient
 	}
 }
 
-func WechatClientWithExpiresIn(sec time.Duration) WechatClientOption {
+func ClientWithExpiresIn(sec time.Duration) ClientOptionFn {
 	if sec <= 0 || sec > 7200 {
 		sec = time.Second * 7200
 	}
 
-	return func(client *WechatClient) {
+	return func(client *Client) {
 		client.expiresIn = sec
 	}
 }
 
-func WechatClientWithMutex(lock *sync.Mutex) WechatClientOption {
-	return func(client *WechatClient) {
+func ClientWithMutex(lock *sync.Mutex) ClientOptionFn {
+	return func(client *Client) {
 		client.tokenWriterMutex = lock
 	}
 }
 
-func NewWechatClient(corpid, corpSecret string, agentId int, options ...WechatClientOption) *WechatClient {
-	client := WechatClient{}
-	client.CorpId = corpid
+func NewClient(corpId, corpSecret string, agentId int, options ...ClientOptionFn) *Client {
+	client := Client{}
+	client.CorpId = corpId
 	client.CorpSecret = corpSecret
 	client.AgentId = agentId
 	client.baseUrl = _BASE_URL
@@ -108,7 +108,7 @@ func NewWechatClient(corpid, corpSecret string, agentId int, options ...WechatCl
 }
 
 // GetAccessTokenStorageKey 获取认证令牌缓存Key
-func (client *WechatClient) GetAccessTokenStorageKey() string {
+func (client *Client) GetAccessTokenStorageKey() string {
 	if client.storageKey == "" {
 		client.storageKey = "accesstoken_" + client.CorpSecret
 	}
@@ -116,7 +116,7 @@ func (client *WechatClient) GetAccessTokenStorageKey() string {
 }
 
 // IsExpired 检查access token是否过期
-func (client *WechatClient) IsExpired(ctx context.Context) bool {
+func (client *Client) IsExpired(ctx context.Context) bool {
 	storageKey := client.GetAccessTokenStorageKey()
 	if client.storage.HasExpired(ctx, storageKey) {
 		return true
@@ -127,7 +127,7 @@ func (client *WechatClient) IsExpired(ctx context.Context) bool {
 // GetAccessToken 提供access_token的获取接口
 //
 // 当access_token过期或者为空字符串时，会重新获取一次access_token
-func (client *WechatClient) GetAccessToken(ctx context.Context) (string, error) {
+func (client *Client) GetAccessToken(ctx context.Context) (string, error) {
 	storageKey := client.GetAccessTokenStorageKey()
 	val := client.storage.Get(ctx, storageKey)
 
@@ -147,7 +147,7 @@ func (client *WechatClient) GetAccessToken(ctx context.Context) (string, error) 
 // FetchAccessToken 重新获取access token
 //
 // 当设置的过期时间为无效（<0 || >7200）时，将自动重置过期时间为远程指定时间
-func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
+func (client *Client) FetchAccessToken(ctx context.Context) error {
 	values := url.Values{}
 	values.Add("corpid", client.CorpId)
 	values.Add("corpsecret", client.CorpSecret)
@@ -205,7 +205,7 @@ func (client *WechatClient) FetchAccessToken(ctx context.Context) error {
 }
 
 // GetDomainIpList 获取微信服务器IP地址
-func (client *WechatClient) GetDomainIpList(ctx context.Context) ([]string, error) {
+func (client *Client) GetDomainIpList(ctx context.Context) ([]string, error) {
 	uri := "/cgi-bin/get_api_domain_ip"
 	ipList := struct {
 		IpList []string `json:"ip_list"`
@@ -215,7 +215,7 @@ func (client *WechatClient) GetDomainIpList(ctx context.Context) ([]string, erro
 	return ipList.IpList, err
 }
 
-func (client *WechatClient) resourceURL(path string, query url.Values) string {
+func (client *Client) resourceURL(path string, query url.Values) string {
 	var uri string
 	re, _ := regexp.Compile("^https?://.*")
 
@@ -231,7 +231,7 @@ func (client *WechatClient) resourceURL(path string, query url.Values) string {
 	return uri
 }
 
-func (client *WechatClient) valuesTokenCompletion(ctx context.Context, values url.Values) (url.Values, error) {
+func (client *Client) valuesTokenCompletion(ctx context.Context, values url.Values) (url.Values, error) {
 	if values == nil {
 		values = url.Values{}
 	}
@@ -249,7 +249,7 @@ func (client *WechatClient) valuesTokenCompletion(ctx context.Context, values ur
 	return values, nil
 }
 
-func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WechatMsgInterface, out any) error {
+func (client *Client) respHandler(ctx context.Context, resp *http.Response, errmsg wechatgo.WechatMsgInterface, out any) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
@@ -264,7 +264,7 @@ func (client *WechatClient) respHandler(ctx context.Context, resp *http.Response
 	return client.handleResult(ctx, errmsg, content, out)
 }
 
-func (client *WechatClient) handleResult(ctx context.Context, errmsg wechatgo.WechatMsgInterface, content []byte, out any) error {
+func (client *Client) handleResult(ctx context.Context, errmsg wechatgo.WechatMsgInterface, content []byte, out any) error {
 	if err := client.verifyResult(ctx, errmsg, content); err != nil {
 		return err
 	}
@@ -281,7 +281,7 @@ func (client *WechatClient) handleResult(ctx context.Context, errmsg wechatgo.We
 	return nil
 }
 
-func (client *WechatClient) verifyResult(ctx context.Context, errmsg wechatgo.WechatMsgInterface, content []byte) error {
+func (client *Client) verifyResult(ctx context.Context, errmsg wechatgo.WechatMsgInterface, content []byte) error {
 	if errmsg == nil {
 		errmsg = &wechatgo.WechatMessageError{}
 	}
@@ -297,7 +297,7 @@ func (client *WechatClient) verifyResult(ctx context.Context, errmsg wechatgo.We
 	return nil
 }
 
-func (client *WechatClient) Get(ctx context.Context, path string, values url.Values, errmsg wechatgo.WechatMsgInterface, out any) error {
+func (client *Client) Get(ctx context.Context, path string, values url.Values, errmsg wechatgo.WechatMsgInterface, out any) error {
 	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
@@ -316,7 +316,7 @@ func (client *WechatClient) Get(ctx context.Context, path string, values url.Val
 	return client.respHandler(ctx, resp, errmsg, out)
 }
 
-func (client *WechatClient) RawGet(ctx context.Context, path string, values url.Values) (resp *http.Response, err error) {
+func (client *Client) RawGet(ctx context.Context, path string, values url.Values) (resp *http.Response, err error) {
 	values, err = client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return nil, err
@@ -332,7 +332,7 @@ func (client *WechatClient) RawGet(ctx context.Context, path string, values url.
 	return resp, err
 }
 
-func (client *WechatClient) AdvPost(ctx context.Context, path, contentType string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
+func (client *Client) AdvPost(ctx context.Context, path, contentType string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	values, err := client.valuesTokenCompletion(ctx, values)
 	if err != nil {
 		return err
@@ -364,6 +364,6 @@ func (client *WechatClient) AdvPost(ctx context.Context, path, contentType strin
 	return client.respHandler(ctx, resp, errmsg, out)
 }
 
-func (client *WechatClient) Post(ctx context.Context, url_ string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
+func (client *Client) Post(ctx context.Context, url_ string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
 	return client.AdvPost(ctx, url_, "application/json", values, data, errmsg, out)
 }

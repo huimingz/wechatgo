@@ -4,19 +4,20 @@ import (
 	"context"
 	"testing"
 
-	"github.com/huimingz/wechatgo/testdata"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/huimingz/wechatgo/testdata"
 )
 
-var wechatClient = NewWechatClient(testdata.TestConf.CorpId, testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
+var wechatClient = NewClient(testdata.TestConf.CorpId, testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
 
 type WechatClientSuite struct {
 	suite.Suite
-	client *WechatClient
+	client *Client
 }
 
 func (s *WechatClientSuite) SetupSuite() {
-	s.client = NewWechatClient(
+	s.client = NewClient(
 		testdata.TestConf.CorpId,
 		testdata.TestConf.CorpSecret,
 		testdata.TestConf.AgentId,
@@ -24,7 +25,7 @@ func (s *WechatClientSuite) SetupSuite() {
 }
 
 func (s *WechatClientSuite) TestShouldBeExpiredIfNotRefreshAccessToken() {
-	client := NewWechatClient("", "", 0)
+	client := NewClient("", "", 0)
 
 	s.True(client.IsExpired(context.Background()))
 }
@@ -43,7 +44,7 @@ func (s *WechatClientSuite) TestShouldGetAccessTokenSuccessfully() {
 }
 
 func (s *WechatClientSuite) TestShouldRaiseErrorIfInvalidClientWhenGetAccessToken() {
-	client := NewWechatClient("xxx", testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
+	client := NewClient("xxx", testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
 	accessToken, err := client.GetAccessToken(context.Background())
 
 	s.Error(err)
@@ -57,7 +58,7 @@ func (s *WechatClientSuite) TestShoulFetchAccessTokenSuccessfully() {
 }
 
 func (s *WechatClientSuite) TestShouldRaiseErrorIfInvalidClientWhenFetchAccessToken() {
-	client := NewWechatClient("xxx", testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
+	client := NewClient("xxx", testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
 	err := client.FetchAccessToken(context.Background())
 
 	s.Error(err)

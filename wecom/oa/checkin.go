@@ -82,10 +82,10 @@ type CheckinOptInfo struct {
 }
 
 type WechatCheckin struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatCheckin(client *wecom.WechatClient) *WechatCheckin {
+func NewWechatCheckin(client *wecom.Client) *WechatCheckin {
 	return &WechatCheckin{client}
 }
 

@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/huimingz/wechatgo/testdata"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/huimingz/wechatgo/testdata"
 )
 
 type departmentTestSuite struct {
@@ -18,7 +19,7 @@ func (s *departmentTestSuite) SetupSuite() {
 	s.TestSuite.SetupSuite()
 
 	conf := testdata.TestConf
-	s.dept = NewWechatDept(NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(s.httpClient)))
+	s.dept = NewWechatDept(NewClient(conf.CorpId, conf.CorpSecret, conf.AgentId, ClientWithHTTPClient(s.httpClient)))
 }
 
 func (s *departmentTestSuite) TestShouldGetDepartment() {
@@ -119,7 +120,7 @@ func TestWechatDept_Update(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
+	var wechatClient = NewClient(conf.CorpId, conf.UserSecret, conf.AgentId)
 	wechatDept = NewWechatDept(wechatClient)
 }
 

@@ -61,6 +61,6 @@ func TestWechatMedia_GetMedia(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
+	var wechatClient = wecom.NewClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
 	wechatMedia = NewWechatMedia(wechatClient)
 }

@@ -94,7 +94,7 @@ func TestWechatMsg_SendMarkdown(t *testing.T) {
 
 func TestMain(t *testing.M) {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
+	var wechatClient = wecom.NewClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
 	wechatMsg = NewWechatMsg(wechatClient)
 
 	os.Exit(t.Run())

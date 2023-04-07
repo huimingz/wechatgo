@@ -30,10 +30,10 @@ type MediaInfo struct {
 }
 
 type WechatMedia struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatMedia(client *wecom.WechatClient) *WechatMedia {
+func NewWechatMedia(client *wecom.Client) *WechatMedia {
 	return &WechatMedia{Client: client}
 }
 

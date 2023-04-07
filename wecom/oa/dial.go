@@ -32,10 +32,10 @@ type DialRecord struct {
 }
 
 type WechatDial struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatDial(client *wecom.WechatClient) *WechatDial {
+func NewWechatDial(client *wecom.Client) *WechatDial {
 	return &WechatDial{client}
 }
 

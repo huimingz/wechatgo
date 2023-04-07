@@ -21,10 +21,10 @@ type UserInfo struct {
 }
 
 type WechatOAuth struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatOAuth(client *wecom.WechatClient) *WechatOAuth {
+func NewWechatOAuth(client *wecom.Client) *WechatOAuth {
 	return &WechatOAuth{Client: client}
 }
 

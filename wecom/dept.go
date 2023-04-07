@@ -19,10 +19,10 @@ const (
 )
 
 type WechatDept struct {
-	Client *WechatClient
+	Client *Client
 }
 
-func NewWechatDept(client *WechatClient) *WechatDept {
+func NewWechatDept(client *Client) *WechatDept {
 	return &WechatDept{client}
 }
 

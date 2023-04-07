@@ -25,6 +25,6 @@ func TestWechatDial_GetRecord(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.DialSecret, conf.DialAgentId)
+	var wechatClient = wecom.NewClient(conf.CorpId, conf.DialSecret, conf.DialAgentId)
 	wechatDial = NewWechatDial(wechatClient)
 }

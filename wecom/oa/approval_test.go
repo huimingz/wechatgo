@@ -23,6 +23,6 @@ func TestWechatApproval_GetApprovalData(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.ApprovalSecret, conf.ApprovalAgentId)
+	var wechatClient = wecom.NewClient(conf.CorpId, conf.ApprovalSecret, conf.ApprovalAgentId)
 	wechatApproval = NewWechatApproval(wechatClient)
 }

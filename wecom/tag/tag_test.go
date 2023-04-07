@@ -94,6 +94,6 @@ func TestWechatTag_Delete(t *testing.T) {
 
 func init() {
 	var conf = testdata.TestConf
-	var wechatClient = wecom.NewWechatClient(conf.CorpId, conf.UserSecret, conf.AgentId)
+	var wechatClient = wecom.NewClient(conf.CorpId, conf.UserSecret, conf.AgentId)
 	wechatTag = NewWechatTag(wechatClient)
 }

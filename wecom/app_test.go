@@ -61,7 +61,7 @@ func (s *AppTestSuite) SetupSuite() {
 	s.TestSuite.SetupSuite()
 
 	var conf = testdata.TestConf
-	s.wecom = NewWecom(conf.CorpId, conf.CorpSecret, conf.AgentId, WechatClientWithHTTPClient(s.httpClient))
+	s.wecom = NewWecom(conf.CorpId, conf.CorpSecret, conf.AgentId, ClientWithHTTPClient(s.httpClient))
 }
 
 func (s *AppTestSuite) TearDownSuite() {

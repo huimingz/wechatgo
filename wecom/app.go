@@ -17,10 +17,10 @@ const (
 )
 
 type applicationManager struct {
-	client *WechatClient
+	client *Client
 }
 
-func newWechatAppManage(client *WechatClient) *applicationManager {
+func newWechatAppManage(client *Client) *applicationManager {
 	return &applicationManager{client}
 }
 

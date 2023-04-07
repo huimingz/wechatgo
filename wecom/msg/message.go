@@ -171,10 +171,10 @@ type TaskCardMsg struct {
 }
 
 type WechatMsg struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatMsg(client *wecom.WechatClient) *WechatMsg {
+func NewWechatMsg(client *wecom.Client) *WechatMsg {
 	return &WechatMsg{client}
 }
 

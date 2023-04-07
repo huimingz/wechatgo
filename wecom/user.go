@@ -150,10 +150,10 @@ type UserForUpdate struct {
 }
 
 type UserManager struct {
-	Client *WechatClient
+	Client *Client
 }
 
-func newManager(client *WechatClient) *UserManager {
+func newManager(client *Client) *UserManager {
 	return &UserManager{client}
 }
 

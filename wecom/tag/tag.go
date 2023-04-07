@@ -30,10 +30,10 @@ type UserInfo struct {
 }
 
 type WechatTag struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatTag(client *wecom.WechatClient) *WechatTag {
+func NewWechatTag(client *wecom.Client) *WechatTag {
 	return &WechatTag{client}
 }
 

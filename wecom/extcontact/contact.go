@@ -122,10 +122,10 @@ type UnassignedUser struct {
 }
 
 type WechatContact struct {
-	Client *wecom.WechatClient
+	Client *wecom.Client
 }
 
-func NewWechatContact(client *wecom.WechatClient) *WechatContact {
+func NewWechatContact(client *wecom.Client) *WechatContact {
 	return &WechatContact{client}
 }
 
