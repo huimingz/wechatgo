@@ -332,8 +332,8 @@ func (client *Client) RawGet(ctx context.Context, path string, values url.Values
 	return resp, err
 }
 
-func (client *Client) AdvPost(ctx context.Context, path, contentType string, values url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
-	values, err := client.valuesTokenCompletion(ctx, values)
+func (client *Client) AdvPost(ctx context.Context, path, contentType string, urlValues url.Values, data interface{}, errmsg wechatgo.WechatMsgInterface, out interface{}) error {
+	values, err := client.valuesTokenCompletion(ctx, urlValues)
 	if err != nil {
 		return err
 	}
