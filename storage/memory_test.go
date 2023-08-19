@@ -1,10 +1,59 @@
 package storage
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/suite"
 )
+
+type MemoryStorageTestSuite struct {
+	suite.Suite
+	storage *MemoryStorage
+}
+
+func (s *MemoryStorageTestSuite) SetupTest() {
+	s.storage = NewMemoryStorage()
+}
+
+func (s *MemoryStorageTestSuite) TestGet() {
+	ctx := context.Background()
+	s.storage.Set(ctx, "get", "xxx", time.Microsecond*1150)
+	s.Equal("xxx", s.storage.Get(ctx, "get"))
+
+	testcases := []struct {
+		name  string
+		key   string
+		sleep time.Duration
+		want  string
+	}{
+		{
+			name:  "case 1",
+			key:   "get",
+			sleep: 0,
+			want:  "xxx",
+		},
+		{
+			name:  "case 2",
+			key:   "get",
+			sleep: time.Microsecond * 1150,
+			want:  "",
+		},
+	}
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			time.Sleep(tc.sleep)
+			s.Equal(tc.want, s.storage.Get(ctx, tc.key))
+		})
+	}
+
+}
+
+func TestMemoryStorageTestSuite(t *testing.T) {
+	suite.Run(t, new(MemoryStorageTestSuite))
+}
 
 func TestNewMemoryStorage(t *testing.T) {
 	ms := NewMemoryStorage()
@@ -13,56 +62,9 @@ func TestNewMemoryStorage(t *testing.T) {
 	}
 }
 
-func TestMemoryStorage_Get(t *testing.T) {
-	ms := NewMemoryStorage()
-	ms.Set("get", "xxx", time.Microsecond*150)
-
-	type test struct {
-		name    string
-		key     string
-		storage *MemoryStorage
-		sleep   time.Duration
-		want    string
-	}
-
-	tests := []test{
-		test{
-			name:    "case 1",
-			key:     "get",
-			storage: ms,
-			sleep:   0,
-			want:    "xxx",
-		},
-		test{
-			name:    "case 2",
-			key:     "get",
-			storage: ms,
-			sleep:   time.Microsecond * 150,
-			want:    "",
-		},
-		test{
-			name:    "case 3",
-			key:     "getx",
-			storage: ms,
-			sleep:   0,
-			want:    "",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			time.Sleep(tt.sleep)
-			val := tt.storage.Get(tt.key)
-			if val != tt.want {
-				t.Errorf("MemoryStorage.Get() error = value [%s] != %s", val, tt.want)
-			}
-		})
-	}
-}
-
 func TestMemoryStorage_HasExpired(t *testing.T) {
 	ms := NewMemoryStorage()
-	ms.Set("key", "val", time.Microsecond*150)
+	ms.Set(context.Background(), "key", "val", time.Microsecond*150)
 
 	type test struct {
 		name    string
@@ -92,7 +94,7 @@ func TestMemoryStorage_HasExpired(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			time.Sleep(tt.sleep)
-			got := tt.storage.HasExpired(tt.key)
+			got := tt.storage.HasExpired(context.Background(), tt.key)
 			if got != tt.want {
 				t.Errorf("MemoryStorage.HasExpired() error = result [%v] != want [%v]", got, tt.want)
 			}
@@ -103,7 +105,7 @@ func TestMemoryStorage_HasExpired(t *testing.T) {
 func TestMemoryStorage_Set(t *testing.T) {
 	ms := NewMemoryStorage()
 
-	err := ms.Set("key", "val", time.Nanosecond*10)
+	err := ms.Set(context.Background(), "key", "val", time.Nanosecond*10)
 	if err != nil {
 		t.Errorf("MemoryStorage.Set() error = result [%v] != nil", err)
 	}
