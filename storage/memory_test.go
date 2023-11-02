@@ -51,6 +51,45 @@ func (s *MemoryStorageTestSuite) TestGet() {
 
 }
 
+func (s *MemoryStorageTestSuite) TestHasExpired() {
+	ms := NewMemoryStorage()
+	ms.Set(context.Background(), "key", "val", time.Microsecond*150)
+
+	type test struct {
+		name    string
+		key     string
+		storage *MemoryStorage
+		sleep   time.Duration
+		want    bool
+	}
+
+	tests := []test{
+		test{
+			name:    "case 1",
+			key:     "key",
+			storage: ms,
+			sleep:   0,
+			want:    false,
+		},
+		test{
+			name:    "case 2",
+			key:     "key",
+			storage: ms,
+			sleep:   time.Microsecond * 150,
+			want:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			time.Sleep(tt.sleep)
+			got := tt.storage.HasExpired(context.Background(), tt.key)
+			s.Equal(tt.want, got, "MemoryStorage.HasExpired() error = result [%v] != want [%v]", got, tt.want)
+		})
+	}
+
+}
+
 func TestMemoryStorageTestSuite(t *testing.T) {
 	suite.Run(t, new(MemoryStorageTestSuite))
 }
