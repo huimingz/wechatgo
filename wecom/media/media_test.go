@@ -5,11 +5,82 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/huimingz/wechatgo/testdata"
 	"github.com/huimingz/wechatgo/wecom"
 )
 
+type MediaTestSuite struct {
+	suite.Suite
+	mediaId string
+	media   *WechatMedia
+}
+
+func (s *MediaTestSuite) SetupSuite() {
+	client := wecom.NewClient(testdata.TestConf.CorpId, testdata.TestConf.CorpSecret, testdata.TestConf.AgentId)
+	s.media = NewWechatMedia(client)
+}
+
+func (s *MediaTestSuite) TestUploadMedia() {
+	type args struct {
+		filename string
+		filePath string
+		type_    string
+	}
+	testcases := []struct {
+		name      string
+		args      args
+		expectErr bool
+	}{
+		{
+			name: "case 1",
+			args: args{
+				filename: "test_file",
+				filePath: "test_file.jpg",
+				type_:    "image",
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tt := range testcases {
+		s.Run(tt.name, func() {
+			file, err := os.Open(tt.args.filePath)
+			s.NoError(err)
+
+			mediaInfo, err := s.media.UploadMedia(context.Background(), tt.args.filename, tt.args.type_, file)
+
+			if tt.expectErr {
+				s.Error(err)
+			} else {
+				s.NoError(err)
+				s.mediaId = mediaInfo.MediaId
+			}
+		})
+	}
+}
+
+func (s *MediaTestSuite) TestGetMedia() {
+	body, fn, err := s.media.GetMedia(context.Background(), s.mediaId)
+	defer body.Close()
+
+	s.NoError(err)
+	s.NotEmpty(fn)
+}
+
+func TestMediaTestSuite(t *testing.T) {
+	suite.Run(t, new(MediaTestSuite))
+}
+
+func init() {
+	var conf = testdata.TestConf
+	var wechatClient = wecom.NewClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
+	wechatMedia = NewWechatMedia(wechatClient)
+}
+
 var mediaId string
+
 var wechatMedia *WechatMedia
 
 func TestWechatMedia_UploadMedia(t *testing.T) {
@@ -57,10 +128,4 @@ func TestWechatMedia_GetMedia(t *testing.T) {
 	if fn == "" {
 		t.Error("WechatMedia.GetMedia() error = '文件名为空'")
 	}
-}
-
-func init() {
-	var conf = testdata.TestConf
-	var wechatClient = wecom.NewClient(conf.CorpId, conf.CorpSecret, conf.AgentId)
-	wechatMedia = NewWechatMedia(wechatClient)
 }
