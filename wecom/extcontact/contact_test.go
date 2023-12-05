@@ -5,21 +5,28 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/huimingz/wechatgo/testdata"
 	"github.com/huimingz/wechatgo/wecom"
 )
 
-var wechatContact *WechatContact
-
-func TestWechatContact_GetUserList(t *testing.T) {
-	_, err := wechatContact.GetUserList(context.Background())
-	if err == nil {
-		t.Error("WechatContact.GetUserList() error = '未出现期望的错误'")
-	}
+type wechatContactTestSuite struct {
+	suite.Suite
+	contact *WechatContact
 }
 
-func init() {
-	var conf = testdata.TestConf
-	var wechatClient = wecom.NewClient(conf.CorpId, conf.UserSecret, conf.AgentId)
-	wechatContact = NewWechatContact(wechatClient)
+func (s *wechatContactTestSuite) SetupSuite() {
+	conf := testdata.TestConf
+	s.contact = NewWechatContact(wecom.NewClient(conf.CorpId, conf.UserSecret, conf.AgentId))
+}
+
+func (s *wechatContactTestSuite) TestGetUserList() {
+	userList, err := s.contact.GetUserList(context.Background())
+	s.Error(err)
+	s.Empty(userList)
+}
+
+func TestWechatContact(t *testing.T) {
+	suite.Run(t, new(wechatContactTestSuite))
 }
