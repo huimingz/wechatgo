@@ -14,7 +14,7 @@ const (
 	urlUpdateStatusBatch string = "/cgi-bin/card/invoice/reimburse/updatestatusbatch"
 )
 
-type InvoiceUserInfoInfo struct {
+type Product struct {
 	Name  string `json:"name"`  // 项目（商品）名称
 	Num   int    `json:"num"`   // 项目数量
 	Unit  string `json:"unit"`  // 项目单位
@@ -22,40 +22,40 @@ type InvoiceUserInfoInfo struct {
 	Price int    `json:"price"` // 单价，以分为单位
 }
 
-type InvoiceUserInfo struct {
-	Fee                   int                   `json:"fee"`                      // 发票加税合计金额，以分为单位
-	Title                 string                `json:"title"`                    // 发票的抬头
-	BillingTime           int                   `json:"billing_time"`             // 开票时间，为十位时间戳
-	BillingNo             string                `json:"billing_no"`               // 发票代码
-	BillingCode           string                `json:"billing_code"`             // 发票号码
-	Info                  []InvoiceUserInfoInfo `json:"info"`                     // 商品信息结构
-	FeeWithoutTax         int                   `json:"fee_without_tax"`          // 不含税金额，以分为单位
-	Tax                   int                   `json:"tax"`                      // 分
-	Detail                string                `json:"detail"`                   // 发票详情，一般描述的是发票的使用说明
-	PdfUrl                string                `json:"pdf_url"`                  // 这张发票对应的PDF_URL
-	TripPdfUrl            string                `json:"trip_pdf_url"`             // 其它消费凭证附件对应的URL，如行程单、水单等
-	CheckCode             string                `json:"check_code"`               // 校验码
-	BuyerNumber           string                `json:"buyer_number"`             // 购买方纳税人识别号
-	BuyerAddressAndPhone  string                `json:"buyer_address_and_phone"`  // 购买方地址、电话
-	BuyerBankAccount      string                `json:"buyer_bank_account"`       // 购买方开户行及账号
-	SellerNumber          string                `json:"seller_number"`            // 销售方纳税人识别号
-	SellerAddressAndPhone string                `json:"seller_address_and_phone"` // 销售方地址、电话
-	SellerBankAccount     string                `json:"seller_bank_account"`      // 销售方开户行及账号
-	Remarks               string                `json:"remarks"`                  // 备注
-	Cashier               string                `json:"cashier"`                  // 收款人，发票左下角处
-	Maker                 string                `json:"maker"`                    // 开票人，发票有下角处
-	ReimburseStatus       string                `json:"reimburse_status"`         // 发报销状态INVOICE_REIMBURSE_INIT：发票初始状态，未锁定；INVOICE_REIMBURSE_LOCK：发票已锁定；INVOICE_REIMBURSE_CLOSURE：发票已核销
+type User struct {
+	Fee                   int       `json:"fee"`                      // 发票加税合计金额，以分为单位
+	Title                 string    `json:"title"`                    // 发票的抬头
+	BillingTime           int       `json:"billing_time"`             // 开票时间，为十位时间戳
+	BillingNo             string    `json:"billing_no"`               // 发票代码
+	BillingCode           string    `json:"billing_code"`             // 发票号码
+	Info                  []Product `json:"info"`                     // 商品信息结构
+	FeeWithoutTax         int       `json:"fee_without_tax"`          // 不含税金额，以分为单位
+	Tax                   int       `json:"tax"`                      // 分
+	Detail                string    `json:"detail"`                   // 发票详情，一般描述的是发票的使用说明
+	PdfUrl                string    `json:"pdf_url"`                  // 这张发票对应的PDF_URL
+	TripPdfUrl            string    `json:"trip_pdf_url"`             // 其它消费凭证附件对应的URL，如行程单、水单等
+	CheckCode             string    `json:"check_code"`               // 校验码
+	BuyerNumber           string    `json:"buyer_number"`             // 购买方纳税人识别号
+	BuyerAddressAndPhone  string    `json:"buyer_address_and_phone"`  // 购买方地址、电话
+	BuyerBankAccount      string    `json:"buyer_bank_account"`       // 购买方开户行及账号
+	SellerNumber          string    `json:"seller_number"`            // 销售方纳税人识别号
+	SellerAddressAndPhone string    `json:"seller_address_and_phone"` // 销售方地址、电话
+	SellerBankAccount     string    `json:"seller_bank_account"`      // 销售方开户行及账号
+	Remarks               string    `json:"remarks"`                  // 备注
+	Cashier               string    `json:"cashier"`                  // 收款人，发票左下角处
+	Maker                 string    `json:"maker"`                    // 开票人，发票有下角处
+	ReimburseStatus       string    `json:"reimburse_status"`         // 发报销状态INVOICE_REIMBURSE_INIT：发票初始状态，未锁定；INVOICE_REIMBURSE_LOCK：发票已锁定；INVOICE_REIMBURSE_CLOSURE：发票已核销
 }
 
-type InvoiceInfo struct {
-	CardId    string          `json:"card_id"`    // 发票id
-	BeginTime int             `json:"begin_time"` // 发票的有效期起始时间
-	EndTime   int             `json:"end_time"`   // 发票的有效期截止时间
-	OpenId    string          `json:"openid"`     // 用户标识
-	Type      string          `json:"type"`       // 发票类型，如广东增值税普通发票
-	Payee     string          `json:"payee"`      // 发票的收款方
-	Detail    string          `json:"detail"`     // 发票详情
-	UserInfo  InvoiceUserInfo `json:"user_info"`  // 发票的用户信息
+type Info struct {
+	CardId    string `json:"card_id"`    // 发票id
+	BeginTime int    `json:"begin_time"` // 发票的有效期起始时间
+	EndTime   int    `json:"end_time"`   // 发票的有效期截止时间
+	OpenId    string `json:"openid"`     // 用户标识
+	Type      string `json:"type"`       // 发票类型，如广东增值税普通发票
+	Payee     string `json:"payee"`      // 发票的收款方
+	Detail    string `json:"detail"`     // 发票详情
+	UserInfo  User   `json:"user_info"`  // 发票的用户信息
 }
 
 type CardInfo struct {
@@ -71,7 +71,7 @@ func NewWechatInvoice(client *wecom.Client) *WechatInvoice {
 	return &WechatInvoice{client}
 }
 
-func (w WechatInvoice) GetInfo(ctx context.Context, cardId, encryptCode string) (*InvoiceInfo, error) {
+func (w WechatInvoice) GetInfo(ctx context.Context, cardId, encryptCode string) (*Info, error) {
 	data := struct {
 		CardId      string `json:"card_id"`      // 发票id
 		EncryptCode string `json:"encrypt_code"` // 加密code
@@ -80,12 +80,12 @@ func (w WechatInvoice) GetInfo(ctx context.Context, cardId, encryptCode string) 
 		EncryptCode: encryptCode,
 	}
 
-	out := InvoiceInfo{}
+	out := Info{}
 	err := w.Client.Post(ctx, urlGetInfo, nil, data, nil, &out)
 	return &out, err
 }
 
-func (w WechatInvoice) GetInfoBatch(ctx context.Context, items []CardInfo) (invList []InvoiceInfo, err error) {
+func (w WechatInvoice) GetInfoBatch(ctx context.Context, items []CardInfo) (invList []Info, err error) {
 	data := struct {
 		ItemList []CardInfo `json:"item_list"`
 	}{
@@ -93,7 +93,7 @@ func (w WechatInvoice) GetInfoBatch(ctx context.Context, items []CardInfo) (invL
 	}
 
 	out := struct {
-		ItemList []InvoiceInfo `json:"item_list"`
+		ItemList []Info `json:"item_list"`
 	}{}
 
 	err = w.Client.Post(ctx, urlGetInfoBatch, nil, data, nil, &out)
