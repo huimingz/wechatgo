@@ -153,7 +153,7 @@ type UserManager struct {
 	Client *Client
 }
 
-func newManager(client *Client) *UserManager {
+func newUserManager(client *Client) *UserManager {
 	return &UserManager{client}
 }
 

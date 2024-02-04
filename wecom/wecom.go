@@ -13,7 +13,7 @@ func NewWecom(corpId, corpSecret string, agentId int, optionFns ...ClientOptionF
 	return &Wecom{
 		client: client,
 		App:    newWechatAppManage(client),
-		User:   newManager(client),
+		User:   newUserManager(client),
 	}
 }
 

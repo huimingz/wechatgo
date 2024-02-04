@@ -17,7 +17,7 @@ type userTestSuite struct {
 func (s *userTestSuite) SetupSuite() {
 	conf := testdata.TestConf
 	wechatClient := NewClient(conf.CorpId, conf.UserSecret, conf.AgentId)
-	s.user = newManager(wechatClient)
+	s.user = newUserManager(wechatClient)
 }
 
 func (s *userTestSuite) TestCreateUser() {
