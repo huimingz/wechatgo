@@ -55,6 +55,23 @@ func (g *CorpGroup) GetCorpToken(ctx context.Context, corpId string, agentId int
 	return out, nil
 }
 
+// GetTransferSession 上级/上游企业通过该接口转换为下级/下游企业的小程序session
+// access_token: 调用接口凭证。下级/下游企业的 access_token
+// userid: 通过code2Session接口获取到的加密的userid 不多于64字节
+func (g *CorpGroup) GetTransferSession(ctx context.Context, userId, sessionKey string) (TransferSession, error) {
+	payload := map[string]any{
+		"userid":      userId,
+		"session_key": sessionKey,
+	}
+	uri := "/cgi-bin/miniprogram/transfer_session"
+	var out TransferSession
+	if err := g.client.Post(ctx, uri, nil, payload, nil, &out); err != nil {
+		return TransferSession{}, err
+	}
+
+	return out, nil
+}
+
 type CorpGroupData struct {
 	CorpId   string `json:"corpid"`    // 企业ID
 	AgentId  int    `json:"agentid"`   // 应用ID
@@ -100,6 +117,11 @@ func (o *corpGroupListOption) SetCursor(cursor string) *corpGroupListOption {
 }
 
 type CorpAccessToken struct {
-	AccessToken string // 获取到的凭证
-	ExpiresIn   int    // 过期时间，单位：秒
+	AccessToken string `json:"access_token"` // 获取到的凭证
+	ExpiresIn   int    `json:"expires_in"`   // 过期时间，单位：秒
+}
+
+type TransferSession struct {
+	UserId     string `json:"userid"`      // 下级/下游企业用户的ID
+	SessionKey string `json:"session_key"` // 属于下级/下游企业的会话密钥
 }
