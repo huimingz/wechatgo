@@ -39,6 +39,22 @@ func (g *CorpGroup) AppShareInfos(ctx context.Context, agentId int, option *corp
 	return out.CorpList, nil
 }
 
+// GetCorpToken 获取下游企业的 access_token
+func (g *CorpGroup) GetCorpToken(ctx context.Context, corpId string, agentId int, bizType corpGroupBusinessType) (CorpAccessToken, error) {
+	payload := map[string]any{
+		"corpid":        corpId,
+		"business_type": bizType,
+		"agentid":       agentId,
+	}
+	uri := "/cgi-bin/corpgroup/corp/gettoken"
+	var out CorpAccessToken
+	if err := g.client.Post(ctx, uri, nil, payload, nil, &out); err != nil {
+		return CorpAccessToken{}, err
+	}
+
+	return out, nil
+}
+
 type CorpGroupData struct {
 	CorpId   string `json:"corpid"`    // 企业ID
 	AgentId  int    `json:"agentid"`   // 应用ID
@@ -81,4 +97,9 @@ func (o *corpGroupListOption) SetLimit(limit uint64) *corpGroupListOption {
 func (o *corpGroupListOption) SetCursor(cursor string) *corpGroupListOption {
 	o.Cursor = &cursor
 	return o
+}
+
+type CorpAccessToken struct {
+	AccessToken string // 获取到的凭证
+	ExpiresIn   int    // 过期时间，单位：秒
 }
